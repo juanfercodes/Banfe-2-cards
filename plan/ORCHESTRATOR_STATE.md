@@ -160,13 +160,19 @@ Wakers: T2 PID 44906 (`/tmp/banfe-t2-state.log`), T3a PID 44907 (`/tmp/banfe-t3a
 
 **Batch 2 merge order**: T1 ✅ done. When T2 and T3a finish, rebase each onto latest `origin/develop` (they branched before the gitleaks + plan-fix commits) then FF-merge. T2 and T3a touch disjoint files (supabase/* + src/lib/dataAccess.ts vs src/components/ui/*), so no conflicts expected between them.
 
-### Batch 3 — UI features (parallel after Batch 2 merges)
-| Task | Status | Worktree | Branch | Pane | PR |
+### Batch 3 — UI features (parallel; launched session 2 ~23:21 as CLAUDE workers)
+| Task | Status | Worktree | Branch | Pane | Model/Effort |
 |---|---|---|---|---|---|
-| T3b (K3) | ⬜ queued | — | `feat/t3b-game-board` | — | — |
-| T3c | ⬜ queued | — | `feat/t3c-results` | — | — |
-| T3d | ⬜ queued | — | `feat/t3d-auth-patient` | — | — |
-| T3e | ⬜ queued | — | `feat/t3e-dashboard-export` | — | — |
+| T3b | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t3b-game-board` | `feat/t3b-game-board` | `w1G:p1` (ws `w1G`) | `claude-fable-5` high |
+| T3c | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t3c-results` | `feat/t3c-results` | `w1H:p1` (ws `w1H`) | `claude-sonnet-5` medium |
+| T3d | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t3d-auth-patient` | `feat/t3d-auth-patient` | `w1J:p1` (ws `w1J`) | `claude-sonnet-5` high |
+| T3e | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t3e-dashboard-export` | `feat/t3e-dashboard-export` | `w1K:p1` (ws `w1K`) | `claude-sonnet-5` medium |
+
+Waker (session 2): **PID 49739** watching all 4 panes. Workers were told to `npm ci`
+first (fresh worktrees). No-PR contract: each rebases onto origin/develop + reports
+DONE/BLOCKED; orchestrator FF-merges. **Merge order = arrival order**; each later merge
+forces the still-open siblings to rebase (shared hotspots: routes.tsx, App.tsx,
+components/ui/index.ts, i18n/{es,en}.json) — resolve by UNION.
 
 ### Batch 4 — Integration (after Batch 3)
 | Task | Status | Worktree | Branch | Pane | PR |
