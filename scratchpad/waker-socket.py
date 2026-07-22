@@ -102,28 +102,33 @@ def handle_event(pane: str, status: str, source: str = "event") -> None:
 
 def parse_event(line: str) -> tuple[str | None, str | None]:
     """Extract (pane_id, agent_status) from an event JSON line, tolerating
-    multiple shapes."""
+    multiple shapes. The observed herdr shape is:
+      {"data": {"agent":..., "agent_status":..., "pane_id":..., "workspace_id":...},
+       "event": "pane.agent_status_changed"}
+    Also handle flat and nested-pane variants defensively."""
     try:
         d = json.loads(line)
     except Exception:
         return None, None
+    # shape 0 (OBSERVED): {"data": {"pane_id":..., "agent_status":...}, "event":...}
+    if isinstance(d.get("data"), dict):
+        dd = d["data"]
+        return dd.get("pane_id"), dd.get("agent_status")
     # shape 1: flat {"pane_id":..., "agent_status":...}
     pane = d.get("pane_id")
     status = d.get("agent_status")
+    if pane is not None:
+        return pane, status
     # shape 2: nested {"pane": {"pane_id":..., "agent_status":...}}
-    if pane is None and isinstance(d.get("pane"), dict):
-        pane = d["pane"].get("pane_id")
-        status = d["pane"].get("agent_status", status)
+    if isinstance(d.get("pane"), dict):
+        return d["pane"].get("pane_id"), d["pane"].get("agent_status")
     # shape 3: result-wrapped {"result": {"pane": {...}}}
-    if pane is None and isinstance(d.get("result"), dict):
+    if isinstance(d.get("result"), dict):
         rp = d["result"]
         if isinstance(rp.get("pane"), dict):
-            pane = rp["pane"].get("pane_id")
-            status = rp["pane"].get("agent_status", status)
-        else:
-            pane = rp.get("pane_id", pane)
-            status = rp.get("agent_status", status)
-    return pane, status
+            return rp["pane"].get("pane_id"), rp["pane"].get("agent_status")
+        return rp.get("pane_id"), rp.get("agent_status")
+    return None, None
 
 def subscribe(sock: socket.socket) -> bool:
     """Send one subscribe request for ALL watched panes. Returns True on ack."""
