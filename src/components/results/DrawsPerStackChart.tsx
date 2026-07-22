@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
+import { Card } from '@/components/ui';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import type { StackId } from '@/lib/protocol';
 
@@ -20,7 +21,12 @@ export function DrawsPerStackChart({ drawsPerStack }: DrawsPerStackChartProps) {
   }));
 
   return (
-    <section aria-label={t('results.drawsPerStack')}>
+    <Card
+      role="region"
+      aria-label={t('results.drawsPerStack')}
+      padding="md"
+      className="shadow-card"
+    >
       <h3 className="text-sm font-medium text-muted">{t('results.drawsPerStack')}</h3>
       <table className="sr-only" data-testid="draws-per-stack-table">
         <caption>{t('results.drawsPerStack')}</caption>
@@ -39,17 +45,45 @@ export function DrawsPerStackChart({ drawsPerStack }: DrawsPerStackChartProps) {
           ))}
         </tbody>
       </table>
-      <div aria-hidden="true">
-        <ResponsiveContainer width="100%" height={220}>
-          <BarChart data={data} accessibilityLayer={false}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="stack" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Bar dataKey="draws" fill="#6366f1" isAnimationActive={!reducedMotion} />
+      <div aria-hidden="true" className="mt-4">
+        <ResponsiveContainer width="100%" height={240}>
+          <BarChart
+            data={data}
+            accessibilityLayer={false}
+            margin={{ top: 8, right: 8, bottom: 0, left: -12 }}
+          >
+            <CartesianGrid stroke="var(--border-subtle)" strokeDasharray="3 3" vertical={false} />
+            <XAxis
+              dataKey="stack"
+              tick={{ fill: 'var(--fg-muted)', fontSize: 12 }}
+              tickLine={false}
+              axisLine={{ stroke: 'var(--border-subtle)' }}
+            />
+            <YAxis
+              allowDecimals={false}
+              tick={{ fill: 'var(--fg-muted)', fontSize: 12 }}
+              tickLine={false}
+              axisLine={false}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'var(--raised)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 12,
+                color: 'var(--fg)',
+              }}
+              labelStyle={{ color: 'var(--fg-muted)' }}
+              cursor={{ fill: 'var(--raised)', fillOpacity: 0.4 }}
+            />
+            <Bar
+              dataKey="draws"
+              fill="var(--accent)"
+              radius={[6, 6, 0, 0]}
+              isAnimationActive={!reducedMotion}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </section>
+    </Card>
   );
 }

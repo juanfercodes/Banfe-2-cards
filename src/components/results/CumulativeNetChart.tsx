@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import {
+  Area,
   CartesianGrid,
+  ComposedChart,
   Line,
-  LineChart,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -10,16 +11,13 @@ import {
   YAxis,
 } from 'recharts';
 
+import { Card } from '@/components/ui';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import type { TurnEvent } from '@/lib/gameEngine';
 import { cumulativeNet } from '@/lib/scoring';
 
 export interface CumulativeNetChartProps {
   events: TurnEvent[];
-}
-
-function usePrefersReducedMotion(): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 export function CumulativeNetChart({ events }: CumulativeNetChartProps) {
@@ -37,8 +35,18 @@ export function CumulativeNetChart({ events }: CumulativeNetChartProps) {
   const maxTotal = series.length > 0 ? Math.max(...series) : 0;
 
   return (
-    <section aria-label={t('results.cumulativeNet')}>
-      <h3 className="text-sm font-medium text-muted">{t('results.cumulativeNet')}</h3>
+    <Card
+      role="region"
+      aria-label={t('results.cumulativeNet')}
+      padding="md"
+      className="shadow-card"
+    >
+      <div className="flex items-center justify-between gap-4">
+        <h3 className="text-sm font-medium text-muted">{t('results.cumulativeNet')}</h3>
+        <span className="rounded-full border border-subtle bg-raised px-2.5 py-0.5 text-xs font-semibold tabular-nums text-default">
+          {t('results.cumulativeFinal', { value: finalTotal })}
+        </span>
+      </div>
       <p className="sr-only" data-testid="cumulative-net-summary">
         {t('results.cumulativeNetSummary', {
           turns: series.length,
@@ -64,24 +72,61 @@ export function CumulativeNetChart({ events }: CumulativeNetChartProps) {
           ))}
         </tbody>
       </table>
-      <div aria-hidden="true">
-        <ResponsiveContainer width="100%" height={260}>
-          <LineChart data={data} accessibilityLayer={false}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="turn" />
-            <YAxis />
-            <Tooltip />
-            <ReferenceLine y={0} stroke="#94a3b8" />
+      <div aria-hidden="true" className="mt-4">
+        <ResponsiveContainer width="100%" height={280}>
+          <ComposedChart
+            data={data}
+            accessibilityLayer={false}
+            margin={{ top: 8, right: 8, bottom: 0, left: -12 }}
+          >
+            <defs>
+              <linearGradient id="cumulativeNetFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="var(--accent)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid stroke="var(--border-subtle)" strokeDasharray="3 3" vertical={false} />
+            <XAxis
+              dataKey="turn"
+              tick={{ fill: 'var(--fg-muted)', fontSize: 12 }}
+              tickLine={false}
+              axisLine={{ stroke: 'var(--border-subtle)' }}
+            />
+            <YAxis
+              tick={{ fill: 'var(--fg-muted)', fontSize: 12 }}
+              tickLine={false}
+              axisLine={false}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'var(--raised)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 12,
+                color: 'var(--fg)',
+              }}
+              labelStyle={{ color: 'var(--fg-muted)' }}
+              cursor={{ stroke: 'var(--border-subtle)' }}
+            />
+            <ReferenceLine y={0} stroke="var(--fg-muted)" strokeDasharray="4 4" />
+            <Area
+              type="monotone"
+              dataKey="total"
+              stroke="none"
+              fill="url(#cumulativeNetFill)"
+              isAnimationActive={!reducedMotion}
+            />
             <Line
               type="monotone"
               dataKey="total"
-              stroke="#6366f1"
+              stroke="var(--accent)"
+              strokeWidth={2.5}
               dot={false}
+              activeDot={{ r: 4 }}
               isAnimationActive={!reducedMotion}
             />
-          </LineChart>
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
-    </section>
+    </Card>
   );
 }

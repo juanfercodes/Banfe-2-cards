@@ -145,6 +145,7 @@
     "perStack": "Per-stack breakdown",
     "perStackBar": "Stack {{stack}}: net {{net}}, reward +{{reward}}, penalty {{penalty}}",
     "cumulativeNet": "Cumulative score",
+    "cumulativeFinal": "Final: {{value}}",
     "cumulativeNetTurn": "Turn",
     "cumulativeNetTotal": "Cumulative",
     "cumulativeNetSummary": "Score over {{turns}} turns: final {{final}}, minimum {{min}}, maximum {{max}}.",

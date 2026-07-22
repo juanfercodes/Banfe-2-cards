@@ -17,8 +17,8 @@ export function InterpretationHint({ summary, events }: InterpretationHintProps)
   const { textKey } = interpret(summary, cumulativeNet(events));
 
   return (
-    <Card>
-      <p className="text-sm text-default">{t(textKey)}</p>
+    <Card className="border-l-4 border-l-accent shadow-card">
+      <p className="text-sm leading-relaxed text-default">{t(textKey)}</p>
       <p className="mt-2 text-xs italic text-muted">{t('results.disclaimer')}</p>
     </Card>
   );

@@ -145,6 +145,7 @@
     "perStack": "Desglose por mazo",
     "perStackBar": "Mazo {{stack}}: neto {{net}}, recompensa +{{reward}}, penalización {{penalty}}",
     "cumulativeNet": "Puntaje acumulado",
+    "cumulativeFinal": "Final: {{value}}",
     "cumulativeNetTurn": "Turno",
     "cumulativeNetTotal": "Acumulado",
     "cumulativeNetSummary": "Evolución del puntaje en {{turns}} turnos: final {{final}}, mínimo {{min}}, máximo {{max}}.",

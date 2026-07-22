@@ -9,7 +9,7 @@ import {
   PerStackBreakdown,
   computeTendency,
 } from '@/components/results';
-import { Button, Spinner, StatCard } from '@/components/ui';
+import { Badge, Button, Card, Spinner, StatCard } from '@/components/ui';
 import { getPatient, getSession, sessionToScoreSummary } from '@/lib/dataAccess';
 import { exportSessionsToFile, type SessionExportRow } from '@/lib/export';
 import type { TurnEvent } from '@/lib/gameEngine';
@@ -113,9 +113,13 @@ export default function ResultsPage({ onExport }: ResultsPageProps) {
   if (!data) {
     if (remote.status === 'notFound') {
       return (
-        <div className="mx-auto max-w-3xl space-y-4 p-4">
-          <p className="text-default">{t('results.noData')}</p>
-          <Button onClick={() => void navigate('/')}>{t('results.backToDashboard')}</Button>
+        <div className="mx-auto max-w-3xl p-4">
+          <Card padding="lg" className="text-center shadow-card">
+            <p className="text-default">{t('results.noData')}</p>
+            <Button className="mt-4" onClick={() => void navigate('/')}>
+              {t('results.backToDashboard')}
+            </Button>
+          </Card>
         </div>
       );
     }
@@ -155,13 +159,15 @@ export default function ResultsPage({ onExport }: ResultsPageProps) {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 p-4">
+    <div className="mx-auto max-w-4xl space-y-6 p-4 pb-10">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-default">{t('results.title')}</h1>
-          {(startedAt || patientCode) && (
-            <p className="text-sm text-muted">
-              {patientCode && <span>{patientCode} · </span>}
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl font-bold tracking-tight text-default">{t('results.title')}</h1>
+            {patientCode && <Badge variant="info">{patientCode}</Badge>}
+          </div>
+          {(startedAt || endedAt) && (
+            <p className="mt-1 text-sm text-muted">
               {startedAt && <span>{new Date(startedAt).toLocaleString()}</span>}
               {endedAt && <span> – {new Date(endedAt).toLocaleString()}</span>}
             </p>
