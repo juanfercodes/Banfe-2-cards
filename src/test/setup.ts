@@ -2,6 +2,13 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 
+if (!import.meta.env.VITE_SUPABASE_URL) {
+  vi.stubEnv('VITE_SUPABASE_URL', 'http://127.0.0.1:54321');
+}
+if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+  vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'test-anon-key');
+}
+
 const mockMatchMedia = (query: string) => ({
   matches: false,
   media: query,
