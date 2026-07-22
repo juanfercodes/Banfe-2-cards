@@ -17,6 +17,9 @@ export interface PlayingCardProps {
 const faceBase =
   'absolute inset-0 flex flex-col items-center justify-center rounded-xl border border-subtle shadow-md';
 
+const sheen =
+  'pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 via-transparent to-black/20';
+
 function CardBack({ label }: { label: string }) {
   return (
     <div
@@ -27,7 +30,8 @@ function CardBack({ label }: { label: string }) {
         'bg-gradient-to-br from-accent to-accent/70 [backface-visibility:hidden]',
       )}
     >
-      <div className="flex h-[calc(100%-12px)] w-[calc(100%-12px)] items-center justify-center rounded-lg border-2 border-white/40 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25)_1px,transparent_1px)] bg-[length:10px_10px]">
+      <span aria-hidden="true" className={sheen} />
+      <div className="relative flex h-[calc(100%-12px)] w-[calc(100%-12px)] items-center justify-center rounded-lg border-2 border-white/40 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25)_1px,transparent_1px)] bg-[length:10px_10px]">
         <span className="text-xl font-black text-white/80">B2</span>
       </div>
     </div>
@@ -51,35 +55,44 @@ function CardFront({
   return (
     <div
       data-testid="card-front"
-      className={cn(faceBase, 'gap-1 bg-surface text-default ring-1 ring-inset ring-subtle')}
+      className={cn(
+        faceBase,
+        'gap-1 bg-gradient-to-b from-raised to-surface text-default ring-1 ring-inset ring-subtle',
+      )}
     >
-      <span data-testid="card-reward" className="text-3xl font-bold tabular-nums text-default">
+      <span aria-hidden="true" className={sheen} />
+      <span
+        data-testid="card-reward"
+        className="relative text-4xl font-black tabular-nums text-default"
+      >
         +{reward}
       </span>
-      <span className="text-[10px] uppercase tracking-wide text-muted">
+      <span className="relative text-[10px] uppercase tracking-wide text-muted">
         {t('game.stackName', { stack })}
       </span>
-      {hadPenalty &&
-        (reducedMotion ? (
-          <span
-            data-testid="penalty-chip"
-            aria-label={t('game.penaltyChipAria', { penalty: Math.abs(penalty) })}
-            className="absolute bottom-2 rounded-full bg-red-600 px-2 py-0.5 text-sm font-bold tabular-nums text-white shadow"
-          >
-            {penalty}
-          </span>
-        ) : (
-          <motion.span
-            data-testid="penalty-chip"
-            aria-label={t('game.penaltyChipAria', { penalty: Math.abs(penalty) })}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0, x: [0, -4, 4, -2, 2, 0] }}
-            transition={{ duration: 0.45, delay: 0.35 }}
-            className="absolute bottom-2 rounded-full bg-red-600 px-2 py-0.5 text-sm font-bold tabular-nums text-white shadow"
-          >
-            {penalty}
-          </motion.span>
-        ))}
+      <span className="relative mt-1 flex h-6 items-center">
+        {hadPenalty &&
+          (reducedMotion ? (
+            <span
+              data-testid="penalty-chip"
+              aria-label={t('game.penaltyChipAria', { penalty: Math.abs(penalty) })}
+              className="rounded-full bg-red-600 px-2 py-0.5 text-sm font-bold tabular-nums text-white shadow"
+            >
+              {penalty}
+            </span>
+          ) : (
+            <motion.span
+              data-testid="penalty-chip"
+              aria-label={t('game.penaltyChipAria', { penalty: Math.abs(penalty) })}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0, x: [0, -4, 4, -2, 2, 0] }}
+              transition={{ duration: 0.45, delay: 0.35 }}
+              className="rounded-full bg-red-600 px-2 py-0.5 text-sm font-bold tabular-nums text-white shadow"
+            >
+              {penalty}
+            </motion.span>
+          ))}
+      </span>
       {!reducedMotion && (
         <motion.span
           data-testid="reward-float"
@@ -136,7 +149,7 @@ export function PlayingCard({
         className="relative h-full w-full [transform-style:preserve-3d]"
         initial={{ rotateY: 0 }}
         animate={{ rotateY: showFront ? 180 : 0 }}
-        transition={{ type: 'spring', stiffness: 240, damping: 26 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 22 }}
       >
         <CardBack label={backLabel} />
         <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
