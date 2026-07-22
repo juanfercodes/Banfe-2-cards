@@ -77,7 +77,7 @@ supabase/
     002_rls.sql
 ```
 
-## 3. Protocol (the spec every worker must respect — corrected by T6)
+## 3. Protocol (the spec every worker must respect — corrected by T8)
 
 > ⚠️ If any number is wrong, STOP and use the BLOCKED protocol (see PREAMBLE).
 > Do not silently "fix" the protocol — flag it.
@@ -85,36 +85,34 @@ supabase/
 **Construct measured**: decision-making under risk, reward/punishment learning,
 impulsivity vs. strategic behavior (orbitofrontal / dorsolateral prefrontal).
 
-**Setup (standard version — the clinical default)**:
+**Setup (single clinical version)**:
 - 5 stacks labeled `1..5`, each a face-down deck of **18 cards** → **90 cards total**.
-- A session is **50 turns**: the player makes 50 draws, then the game ends. Since
-  50 < 90 the decks are never all exhausted; a single stack CAN run out at 18
-  draws — it becomes unavailable and the player must pick another stack.
+- A session ends when **either** the player has drawn **50 cards** **or** the
+  visible **5-minute countdown** reaches 0:00 — whichever happens first.
+- Since 50 < 90 the decks are never all exhausted; a single stack CAN run out at
+  18 draws — it becomes unavailable and the player must pick another stack.
 - Each turn: the player picks a stack, the top card is drawn face-up onto that
   stack's **discard pile**, a **reward** is added, then a **penalization** (if the
   card carries one) subtracts points. The discard piles accumulate for the whole
   session so the decision history per deck stays visible.
 - Higher-score stacks carry larger / more frequent penalizations.
+- The **running total is hidden from the patient** during play. Only transient
+  per-draw feedback is shown (reward on the card, penalty chip when applicable).
+  The ScoreBar shows the countdown and the draw count (`turn / 50`). The
+  clinician Results screen still shows the full analysis (total net, per-stack
+  breakdown, cumulative net, penalizations, advantage/disadvantage index).
 
-**Game versions** (`lib/protocol.ts`, chosen by the clinician in a selector when
-starting a session; not yet persisted in the DB):
+**Contingency table — deterministic penalty schedule** (`lib/protocol.ts`). The
+penalty positions are 1-based indices within the 18-card deck; the card at that
+position always carries the penalty. Reward per card is `+stack`.
 
-| id | deckSizePerStack | totalTurns | note |
+| Stack | Reward/draw | Penalty amount | Penalty at positions (1..18) |
 |---|---|---|---|
-| `standard` | 18 | 50 | **default** — the 90-card / 50-draw clinical game |
-| `extended` | 40 | 200 | legacy full-length reconstruction |
-| `short` | 40 | 100 | legacy short reconstruction |
-
-**Contingency table** (reward per draw, penalization amount, penalization
-probability, net expected value per draw):
-
-| Stack | Reward/draw | Penalization | Penalization prob. | Net expected/draw |
-|---|---|---|---|---|
-| 1 | +1 | 0   | 0%  | +1.0  |
-| 2 | +2 | −1  | 25% | +1.75 |
-| 3 | +3 | −3  | 50% | +1.5  |
-| 4 | +4 | −6  | 50% | +1.0  |
-| 5 | +5 | −10 | 60% | −1.0  |
+| 1 | +1 | −2  | 5, 14 |
+| 2 | +2 | −3  | 4, 8, 12, 16 |
+| 3 | +3 | −5  | 3, 6, 9, 12, 15, 18 |
+| 4 | +4 | −8  | 2, 4, 6, 8, 10, 12, 14, 16, 18 |
+| 5 | +5 | −12 | 2, 4, 5, 7, 9, 10, 12, 14, 15, 17 |
 
 **Advantageous stacks** = low-score (1, 2). **Disadvantageous** = high-score (4, 5).
 Stack 3 is neutral.
@@ -125,9 +123,10 @@ Stack 3 is neutral.
 - `penalizations` = count of penalization events.
 - `adv_disadv_index` = `(sum of draws in stacks 1,2) − (sum of draws in stacks 4,5)`.
   Positive ⇒ advantageous/strategic; negative ⇒ disadvantageous/impulsive.
-- There are **no learning-curve blocks**: the game runs straight through its 50
-  turns. The Results screen shows a **cumulative net-score line** (running total
-  after each turn, `cumulativeNet(events)`), computed from `raw_events`.
+- There are **no learning-curve blocks**: the game runs straight through until
+  the draw cap or timer expires. The Results screen shows a **cumulative
+  net-score line** (running total after each turn, `cumulativeNet(events)`),
+  computed from `raw_events`.
 
 **Session record persisted** (`sessions` table):
 `patient_id, started_at, ended_at, total_net, per_stack (jsonb),

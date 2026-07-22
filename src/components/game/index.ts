@@ -11,5 +11,3 @@ export { ScoreBar } from './ScoreBar';
 export type { ScoreBarProps } from './ScoreBar';
 export { Stack } from './Stack';
 export type { StackProps } from './Stack';
-export { VersionSelector } from './VersionSelector';
-export type { VersionSelectorProps } from './VersionSelector';

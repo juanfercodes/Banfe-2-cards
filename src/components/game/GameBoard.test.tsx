@@ -13,10 +13,10 @@ function renderBoard({
 }: {
   totalTurns?: number;
   deckSizePerStack?: number;
-  onFinish?: (summary: unknown, events: unknown, seed: number) => void;
+  onFinish?: (summary: unknown, events: unknown) => void;
 } = {}) {
   return renderWithProviders(
-    <GameProvider totalTurns={totalTurns} deckSizePerStack={deckSizePerStack} seed={42}>
+    <GameProvider totalTurns={totalTurns} deckSizePerStack={deckSizePerStack}>
       <GameBoard onFinish={onFinish} />
     </GameProvider>,
     { route: '/' },
@@ -29,6 +29,13 @@ describe('<GameBoard />', () => {
     const stacks = screen.getAllByRole('button', { name: /^Mazo \d:/ });
     expect(stacks).toHaveLength(5);
     expect(screen.getByText('0 / 50')).toBeInTheDocument();
+    expect(screen.getByTestId('timer-value')).toHaveTextContent('05:00');
+  });
+
+  it('does not show the running total during play', () => {
+    renderBoard();
+    expect(screen.queryByTestId('score-value')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Puntaje/)).not.toBeInTheDocument();
   });
 
   it('renders a discard pile per stack, empty at start', () => {
@@ -54,7 +61,7 @@ describe('<GameBoard />', () => {
     );
   });
 
-  it('shows the finish button at isFinished and calls onFinish with summary, events and seed', async () => {
+  it('shows the finish button at isFinished and calls onFinish with summary and events', async () => {
     const onFinish = vi.fn();
     const user = userEvent.setup();
     renderBoard({ totalTurns: 1, onFinish });
@@ -67,16 +74,24 @@ describe('<GameBoard />', () => {
     await user.click(finishButton);
 
     expect(onFinish).toHaveBeenCalledTimes(1);
-    const [summary, events, seed] = onFinish.mock.calls[0] as [
+    const [summary, events] = onFinish.mock.calls[0] as [
       { totalNet: number; penalizations: number },
       { turn: number; stack: number; net: number }[],
-      number,
     ];
     expect(events).toHaveLength(1);
     expect(events[0]!.stack).toBe(1);
-    expect(seed).toBe(42);
     expect(summary.totalNet).toBe(events[0]!.net);
     expect(typeof summary.penalizations).toBe('number');
+  });
+
+  it('does not show the final score on the finish card', async () => {
+    const user = userEvent.setup();
+    renderBoard({ totalTurns: 1 });
+
+    await user.click(screen.getByRole('button', { name: /^Mazo 1:/ }));
+
+    expect(screen.getByRole('button', { name: 'Ver resultados' })).toBeInTheDocument();
+    expect(screen.queryByText(/Puntaje final/)).not.toBeInTheDocument();
   });
 
   it('restart resets the game and empties the discard piles', async () => {
@@ -94,6 +109,7 @@ describe('<GameBoard />', () => {
     expect(screen.getByTestId('discard-pile-summary-3')).toHaveTextContent(
       'Mazo 3: 0 cartas robadas',
     );
+    expect(screen.getByTestId('timer-value')).toHaveTextContent('05:00');
   });
 
   it('marks a stack as exhausted after drawing its whole 18-card deck', async () => {

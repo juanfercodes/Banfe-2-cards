@@ -15,18 +15,22 @@ test('login → create patient → play 50 turns → save → results → dashbo
   // 1. Authenticate a fresh clinician (clean slate for count assertions).
   await signUpAndIn(page, uniqueEmail('journey'));
 
-  // 2. Create a patient by code; the version selector starts the standard
-  //    90-card / 50-draw game by default.
+  // 2. Create a patient by code; the game starts directly with the single
+  //    90-card / 50-draw / 5-min version.
   const code = uniquePatientCode();
   await createPatientAndStart(page, code);
   await expect(page.getByText('0 / 50')).toBeVisible();
+  await expect(page.getByTestId('timer-value')).toHaveText('05:00');
 
-  // 3. Each draw lands on that stack's discard pile ("monte").
+  // 3. Each draw lands on that stack's discard pile ("monte"). The patient
+  //    never sees a running total during play.
   await page.getByRole('button', { name: /^Mazo 1:/ }).click();
   await expect(page.getByText('1 / 50')).toBeVisible();
   await expect(page.getByTestId('discard-pile-summary-1')).toHaveText(
     'Mazo 1: 1 carta robada, 0 con penalización',
   );
+  await expect(page.getByTestId('score-value')).toHaveCount(0);
+  await expect(page.getByText(/Puntaje final/)).not.toBeVisible();
 
   // 4. Play through the remaining turns until finished.
   await playToFinish(page);

@@ -2,38 +2,30 @@ import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { summarize } from '@/lib/scoring';
+import { GAME_DURATION_MS } from '@/lib/protocol';
 import { useGame } from '../useGame';
 
 describe('useGame', () => {
-  it('starts idle with the supplied seed and totalTurns', () => {
-    const { result } = renderHook(() => useGame({ totalTurns: 10, seed: 42 }));
+  it('starts idle with the supplied totalTurns', () => {
+    const { result } = renderHook(() => useGame({ totalTurns: 10 }));
 
     expect(result.current.state.status).toBe('idle');
     expect(result.current.state.turn).toBe(0);
     expect(result.current.state.totalTurns).toBe(10);
-    expect(result.current.seed).toBe(42);
     expect(result.current.isFinished).toBe(false);
   });
 
   it('defaults to the standard 90/50 version', () => {
-    const { result } = renderHook(() => useGame({ seed: 42 }));
+    const { result } = renderHook(() => useGame({}));
 
     expect(result.current.state.totalTurns).toBe(50);
     expect(result.current.state.deckSizePerStack).toBe(18);
     expect(result.current.remaining(1)).toBe(18);
-  });
-
-  it('builds decks with the supplied per-stack size', () => {
-    const { result } = renderHook(() =>
-      useGame({ totalTurns: 200, deckSizePerStack: 40, seed: 42 }),
-    );
-
-    expect(result.current.remaining(3)).toBe(40);
-    expect(result.current.state.deckSizePerStack).toBe(40);
+    expect(result.current.state.maxDurationMs).toBe(GAME_DURATION_MS);
   });
 
   it('draw updates running total and events immutably', () => {
-    const { result } = renderHook(() => useGame({ totalTurns: 10, seed: 42 }));
+    const { result } = renderHook(() => useGame({ totalTurns: 10 }));
     const before = result.current.state;
 
     act(() => {
@@ -51,7 +43,7 @@ describe('useGame', () => {
   });
 
   it('isFinished flips at totalTurns and further draws are no-ops', () => {
-    const { result } = renderHook(() => useGame({ totalTurns: 3, seed: 7 }));
+    const { result } = renderHook(() => useGame({ totalTurns: 3 }));
 
     act(() => {
       result.current.draw(1);
@@ -73,8 +65,8 @@ describe('useGame', () => {
     expect(result.current.state.events).toHaveLength(3);
   });
 
-  it('reset produces a fresh idle state with a new seed by default', () => {
-    const { result } = renderHook(() => useGame({ totalTurns: 5, seed: 42 }));
+  it('reset produces a fresh idle state', () => {
+    const { result } = renderHook(() => useGame({ totalTurns: 5 }));
 
     act(() => {
       result.current.draw(1);
@@ -85,26 +77,14 @@ describe('useGame', () => {
     expect(result.current.state.turn).toBe(0);
     expect(result.current.state.events).toHaveLength(0);
     expect(result.current.state.totalTurns).toBe(5);
-    expect(result.current.seed).not.toBe(42);
+    expect(result.current.state.timeRemainingMs).toBe(GAME_DURATION_MS);
   });
 
-  it('reset accepts a supplied seed', () => {
-    const { result } = renderHook(() => useGame({ totalTurns: 5, seed: 42 }));
-
-    act(() => {
-      result.current.draw(1);
-      result.current.reset(99);
-    });
-
-    expect(result.current.seed).toBe(99);
-    expect(result.current.state.status).toBe('idle');
-  });
-
-  it('is deterministic: same seed and draw sequence yield identical events', () => {
+  it('is deterministic: same draw sequence yield identical events', () => {
     const sequence = [1, 5, 3, 5, 2, 4, 4, 1] as const;
 
-    const a = renderHook(() => useGame({ totalTurns: 20, seed: 1234 }));
-    const b = renderHook(() => useGame({ totalTurns: 20, seed: 1234 }));
+    const a = renderHook(() => useGame({ totalTurns: 20 }));
+    const b = renderHook(() => useGame({ totalTurns: 20 }));
 
     act(() => {
       for (const stack of sequence) {
@@ -118,7 +98,7 @@ describe('useGame', () => {
   });
 
   it('summary matches summarize(events) after draws', () => {
-    const { result } = renderHook(() => useGame({ totalTurns: 10, seed: 42 }));
+    const { result } = renderHook(() => useGame({ totalTurns: 10 }));
 
     act(() => {
       result.current.draw(5);
@@ -133,7 +113,7 @@ describe('useGame', () => {
   });
 
   it('canDraw and remaining reflect the current decks', () => {
-    const { result } = renderHook(() => useGame({ seed: 42 }));
+    const { result } = renderHook(() => useGame({}));
 
     expect(result.current.canDraw(3)).toBe(true);
     expect(result.current.remaining(3)).toBe(18);

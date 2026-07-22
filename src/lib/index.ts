@@ -3,13 +3,12 @@ export {
   type StackId,
   type Contingency,
   type StackCard,
-  type GameVersion,
-  type GameVersionId,
   CONTINGENCIES,
-  GAME_VERSIONS,
-  DEFAULT_GAME_VERSION,
   STACK_COUNT,
-  getGameVersion,
+  DECK_SIZE_PER_STACK,
+  TOTAL_TURNS,
+  TOTAL_CARDS,
+  GAME_DURATION_MS,
   ADVANTAGEOUS_STACKS,
   DISADVANTAGEOUS_STACKS,
   buildDeck,
@@ -21,6 +20,7 @@ export {
   draw,
   canDraw,
   remaining,
+  tick,
 } from '@/lib/gameEngine';
 export { type ScoreSummary, summarize, cumulativeNet } from '@/lib/scoring';
 export * from './dataAccess';

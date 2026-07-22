@@ -9,7 +9,7 @@ import { ScoreBar } from './ScoreBar';
 import { Stack } from './Stack';
 import { Button, Card } from '../ui';
 
-export type GameFinishHandler = (summary: ScoreSummary, events: TurnEvent[], seed: number) => void;
+export type GameFinishHandler = (summary: ScoreSummary, events: TurnEvent[]) => void;
 
 export interface GameBoardProps {
   onFinish?: GameFinishHandler | undefined;
@@ -20,7 +20,7 @@ const ALL_STACKS: readonly StackId[] = [1, 2, 3, 4, 5] as const;
 
 export function GameBoard({ onFinish, subtitle }: GameBoardProps) {
   const { t } = useTranslation();
-  const { state, summary, draw, reset, canDraw, remaining, isFinished, seed } = useGameContext();
+  const { state, summary, draw, reset, canDraw, remaining, isFinished } = useGameContext();
 
   const eventsByStack = useMemo(() => {
     const map = {} as Record<StackId, TurnEvent[]>;
@@ -32,7 +32,7 @@ export function GameBoard({ onFinish, subtitle }: GameBoardProps) {
   return (
     <>
       <ScoreBar
-        runningTotal={state.runningTotal}
+        timeRemainingMs={state.timeRemainingMs}
         turn={state.turn}
         totalTurns={state.totalTurns}
         penalizations={summary.penalizations}
@@ -74,15 +74,7 @@ export function GameBoard({ onFinish, subtitle }: GameBoardProps) {
       {isFinished && (
         <Card padding="lg" className="mt-8 text-center shadow-card" aria-live="polite">
           <p className="text-lg font-semibold text-default">{t('game.finished')}</p>
-          <p className="mt-3 text-xs font-medium uppercase tracking-wide text-muted">
-            {t('game.finalScore')}
-          </p>
-          <p className="mt-1 text-4xl font-bold tabular-nums text-default">{summary.totalNet}</p>
-          <Button
-            className="mt-5"
-            size="lg"
-            onClick={() => onFinish?.(summary, state.events, seed)}
-          >
+          <Button className="mt-5" size="lg" onClick={() => onFinish?.(summary, state.events)}>
             {t('game.seeResults')}
           </Button>
         </Card>

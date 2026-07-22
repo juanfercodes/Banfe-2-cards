@@ -52,17 +52,15 @@ export async function signIn(
   await expect(page.getByRole('heading', { name: 'Panel de control' })).toBeVisible();
 }
 
-/** From the dashboard, create a patient by code and start a session through the
- * version selector (standard 90/50 preselected by default). */
+/** From the dashboard, create a patient by code and start a session.
+ * The game now starts directly with the single 90/50 / 5-min version. */
 export async function createPatientAndStart(page: Page, code: string): Promise<void> {
   await page.getByRole('link', { name: 'Nuevo paciente' }).first().click();
   await page.getByLabel('Código del paciente').fill(code);
   await page.getByRole('button', { name: 'Crear paciente' }).click();
   await page.waitForURL(/\/play\//);
-  await expect(page.getByRole('heading', { name: 'Versión de la sesión' })).toBeVisible();
-  await expect(page.getByRole('radio', { name: /Estándar/ })).toBeChecked();
-  await page.getByRole('button', { name: 'Comenzar sesión' }).click();
   await expect(page.getByRole('button', { name: /^Mazo 1:/ })).toBeVisible();
+  await expect(page.getByTestId('timer-value')).toHaveText('05:00');
 }
 
 /** Click stacks deterministically until the game finishes. */

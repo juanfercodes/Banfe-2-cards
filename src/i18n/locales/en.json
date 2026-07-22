@@ -101,16 +101,8 @@
     "boardLabel": "Game board",
     "finalScore": "Final score",
     "patientLabel": "Patient: {{id}}",
-    "version": {
-      "title": "Session version",
-      "hint": "Choose a version and start. Standard is the recommended assessment.",
-      "standard": "Standard",
-      "extended": "Extended",
-      "short": "Short",
-      "detail": "{{cards}} cards · {{turns}} turns",
-      "default": "Default",
-      "start": "Start session"
-    },
+    "timeRemaining": "Time remaining",
+    "timeRemainingAria": "{{time}} remaining",
     "pileSummary_one": "Stack {{stack}}: {{count}} card drawn, {{penalties}} with penalty",
     "pileSummary_other": "Stack {{stack}}: {{count}} cards drawn, {{penalties}} with penalty",
     "pileEmpty": "Empty pile",

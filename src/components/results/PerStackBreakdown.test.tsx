@@ -21,10 +21,10 @@ describe('<PerStackBreakdown />', () => {
     expect(bars).toHaveLength(5);
     // Localized (es) and information-complete: stack, net, reward and penalty.
     expect(
-      screen.getByRole('img', { name: 'Mazo 1: neto 20, recompensa +1, penalización 0' }),
+      screen.getByRole('img', { name: 'Mazo 1: neto 20, recompensa +1, penalización -2' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('img', { name: 'Mazo 5: neto -15, recompensa +5, penalización -10' }),
+      screen.getByRole('img', { name: 'Mazo 5: neto -15, recompensa +5, penalización -12' }),
     ).toBeInTheDocument();
   });
 

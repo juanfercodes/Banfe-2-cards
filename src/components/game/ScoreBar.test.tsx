@@ -1,42 +1,30 @@
 import { screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { ScoreBar } from './ScoreBar';
 import { renderWithProviders } from '../../test/render';
 
-function stubMatchMedia(matches: boolean) {
-  vi.stubGlobal(
-    'matchMedia',
-    vi.fn((query: string) => ({
-      matches: query.includes('prefers-reduced-motion') ? matches : false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
-  );
-}
-
-afterEach(() => {
-  stubMatchMedia(false);
-});
-
 describe('<ScoreBar />', () => {
-  it('shows running total, turn counter and penalizations', () => {
-    renderWithProviders(<ScoreBar runningTotal={17} turn={3} totalTurns={10} penalizations={2} />, {
+  it('shows the countdown timer, turn counter and penalizations', () => {
+    renderWithProviders(<ScoreBar timeRemainingMs={3 * 60 * 1000 + 45000} turn={12} totalTurns={50} penalizations={2} />, {
       withRouter: false,
     });
 
-    expect(screen.getByTestId('score-value')).toHaveTextContent('17');
-    expect(screen.getByText('3 / 10')).toBeInTheDocument();
+    expect(screen.getByTestId('timer-value')).toHaveTextContent('03:45');
+    expect(screen.getByTestId('turn-count')).toHaveTextContent('12 / 50');
     expect(screen.getByTestId('penalizations-value')).toHaveTextContent('2');
   });
 
+  it('does not expose the running total', () => {
+    renderWithProviders(<ScoreBar timeRemainingMs={300000} turn={5} totalTurns={50} penalizations={1} />, {
+      withRouter: false,
+    });
+
+    expect(screen.queryByTestId('score-value')).not.toBeInTheDocument();
+  });
+
   it('exposes progress as a progressbar with the right fraction', () => {
-    renderWithProviders(<ScoreBar runningTotal={0} turn={3} totalTurns={10} penalizations={0} />, {
+    renderWithProviders(<ScoreBar timeRemainingMs={300000} turn={3} totalTurns={10} penalizations={0} />, {
       withRouter: false,
     });
 
@@ -47,13 +35,11 @@ describe('<ScoreBar />', () => {
     expect(screen.getByTestId('progress-fill').style.width).toBe('30%');
   });
 
-  it('drops transition classes when prefers-reduced-motion is set', () => {
-    stubMatchMedia(true);
-    renderWithProviders(<ScoreBar runningTotal={5} turn={1} totalTurns={10} penalizations={0} />, {
+  it('formats zero time as 00:00', () => {
+    renderWithProviders(<ScoreBar timeRemainingMs={0} turn={50} totalTurns={50} penalizations={0} />, {
       withRouter: false,
     });
 
-    expect(screen.getByTestId('progress-fill').className).not.toMatch(/transition/);
-    expect(screen.getByTestId('score-value').style.transform).toBe('');
+    expect(screen.getByTestId('timer-value')).toHaveTextContent('00:00');
   });
 });

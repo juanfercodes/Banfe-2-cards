@@ -1,5 +1,4 @@
-import { type StackCard, type StackId, DEFAULT_GAME_VERSION, buildDeck } from '@/lib/protocol';
-import { createRng } from '@/lib/rng';
+import { type StackCard, type StackId, DECK_SIZE_PER_STACK, GAME_DURATION_MS, TOTAL_TURNS, buildDeck } from '@/lib/protocol';
 
 export type { StackId } from '@/lib/protocol';
 
@@ -21,7 +20,8 @@ export type GameState = {
   decks: Record<StackId, StackCard[]>;
   events: TurnEvent[];
   status: 'idle' | 'playing' | 'finished';
-  seed: number;
+  maxDurationMs: number;
+  timeRemainingMs: number;
 };
 
 const ALL_STACKS: readonly StackId[] = [1, 2, 3, 4, 5] as const;
@@ -30,18 +30,16 @@ export function createGame(
   opts: {
     totalTurns?: number;
     deckSizePerStack?: number;
-    seed?: number;
-    rng?: () => number;
+    maxDurationMs?: number;
   } = {},
 ): GameState {
-  const seed = opts.seed ?? 0;
-  const rng = opts.rng ?? createRng(seed);
-  const totalTurns = opts.totalTurns ?? DEFAULT_GAME_VERSION.totalTurns;
-  const deckSizePerStack = opts.deckSizePerStack ?? DEFAULT_GAME_VERSION.deckSizePerStack;
+  const totalTurns = opts.totalTurns ?? TOTAL_TURNS;
+  const deckSizePerStack = opts.deckSizePerStack ?? DECK_SIZE_PER_STACK;
+  const maxDurationMs = opts.maxDurationMs ?? GAME_DURATION_MS;
 
   const decks = {} as Record<StackId, StackCard[]>;
   for (const stack of ALL_STACKS) {
-    decks[stack] = buildDeck(stack, deckSizePerStack, rng);
+    decks[stack] = buildDeck(stack).slice(0, deckSizePerStack);
   }
 
   return {
@@ -52,7 +50,8 @@ export function createGame(
     decks,
     events: [],
     status: 'idle',
-    seed,
+    maxDurationMs,
+    timeRemainingMs: maxDurationMs,
   };
 }
 
@@ -75,7 +74,7 @@ export function draw(state: GameState, stack: StackId): GameState {
     throw new Error(`Cannot draw: stack ${stack} is empty`);
   }
 
-  const card = deck[deck.length - 1]!;
+  const card = deck[0]!;
   const penalty = card.hasPenalty ? card.penalty : 0;
   const net = card.reward + penalty;
   const newRunningTotal = state.runningTotal + net;
@@ -92,7 +91,7 @@ export function draw(state: GameState, stack: StackId): GameState {
   };
 
   const newDecks = { ...state.decks };
-  newDecks[stack] = deck.slice(0, -1);
+  newDecks[stack] = deck.slice(1);
 
   const allEmpty = ALL_STACKS.every((s) => newDecks[s].length === 0);
   const reachedTotalTurns = newTurn >= state.totalTurns;
@@ -106,6 +105,20 @@ export function draw(state: GameState, stack: StackId): GameState {
     decks: newDecks,
     events: [...state.events, event],
     status: newStatus,
-    seed: state.seed,
+    maxDurationMs: state.maxDurationMs,
+    timeRemainingMs: state.timeRemainingMs,
+  };
+}
+
+export function tick(state: GameState, deltaMs: number): GameState {
+  if (state.status === 'finished') return state;
+
+  const timeRemainingMs = Math.max(state.timeRemainingMs - deltaMs, 0);
+  const status: GameState['status'] = timeRemainingMs === 0 ? 'finished' : state.status;
+
+  return {
+    ...state,
+    timeRemainingMs,
+    status,
   };
 }

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   type GameState,
@@ -7,54 +7,59 @@ import {
   createGame,
   draw as engineDraw,
   remaining as engineRemaining,
+  tick as engineTick,
 } from '@/lib/gameEngine';
-import { DEFAULT_GAME_VERSION } from '@/lib/protocol';
+import { DECK_SIZE_PER_STACK, GAME_DURATION_MS, TOTAL_TURNS } from '@/lib/protocol';
 import { type ScoreSummary, summarize } from '@/lib/scoring';
 
 export interface UseGameOptions {
   totalTurns?: number | undefined;
   deckSizePerStack?: number | undefined;
-  seed?: number | undefined;
+  maxDurationMs?: number | undefined;
 }
 
 export interface UseGameResult {
   state: GameState;
   summary: ScoreSummary;
-  seed: number;
   isFinished: boolean;
   draw: (stack: StackId) => void;
-  reset: (seed?: number) => void;
+  reset: () => void;
   canDraw: (stack: StackId) => boolean;
   remaining: (stack: StackId) => number;
 }
 
-function randomSeed(): number {
-  return (Math.random() * 0x100000000) >>> 0;
-}
+const TICK_MS = 1000;
 
 export function useGame(options: UseGameOptions = {}): UseGameResult {
   const {
-    totalTurns = DEFAULT_GAME_VERSION.totalTurns,
-    deckSizePerStack = DEFAULT_GAME_VERSION.deckSizePerStack,
-    seed,
+    totalTurns = TOTAL_TURNS,
+    deckSizePerStack = DECK_SIZE_PER_STACK,
+    maxDurationMs = GAME_DURATION_MS,
   } = options;
 
   const [state, setState] = useState<GameState>(() =>
-    createGame({ totalTurns, deckSizePerStack, seed: seed ?? randomSeed() }),
+    createGame({ totalTurns, deckSizePerStack, maxDurationMs }),
   );
 
   const summary = useMemo(() => summarize(state.events), [state.events]);
+
+  useEffect(() => {
+    if (state.status === 'finished') return;
+
+    const id = setInterval(() => {
+      setState((prev) => engineTick(prev, TICK_MS));
+    }, TICK_MS);
+
+    return () => clearInterval(id);
+  }, [state.status]);
 
   const draw = useCallback((stack: StackId) => {
     setState((prev) => (engineCanDraw(prev, stack) ? engineDraw(prev, stack) : prev));
   }, []);
 
-  const reset = useCallback(
-    (nextSeed?: number) => {
-      setState(createGame({ totalTurns, deckSizePerStack, seed: nextSeed ?? randomSeed() }));
-    },
-    [totalTurns, deckSizePerStack],
-  );
+  const reset = useCallback(() => {
+    setState(createGame({ totalTurns, deckSizePerStack, maxDurationMs }));
+  }, [totalTurns, deckSizePerStack, maxDurationMs]);
 
   const canDraw = useCallback((stack: StackId) => engineCanDraw(state, stack), [state]);
 
@@ -63,7 +68,6 @@ export function useGame(options: UseGameOptions = {}): UseGameResult {
   return {
     state,
     summary,
-    seed: state.seed,
     isFinished: state.status === 'finished',
     draw,
     reset,

@@ -101,16 +101,8 @@
     "boardLabel": "Tablero de juego",
     "finalScore": "Puntaje final",
     "patientLabel": "Paciente: {{id}}",
-    "version": {
-      "title": "Versión de la sesión",
-      "hint": "Elige la versión y comienza. La estándar es la recomendada para la evaluación.",
-      "standard": "Estándar",
-      "extended": "Extendida",
-      "short": "Corta",
-      "detail": "{{cards}} cartas · {{turns}} turnos",
-      "default": "Predeterminada",
-      "start": "Comenzar sesión"
-    },
+    "timeRemaining": "Tiempo restante",
+    "timeRemainingAria": "Quedan {{time}}",
     "pileSummary_one": "Mazo {{stack}}: {{count}} carta robada, {{penalties}} con penalización",
     "pileSummary_other": "Mazo {{stack}}: {{count}} cartas robadas, {{penalties}} con penalización",
     "pileEmpty": "Monte vacío",
