@@ -86,13 +86,20 @@ Last updated: 2026-07-21 21:48 (session 1 — T1 merged, T2/T3a running, infra r
   `herdr pane run <pane> "<prompt>"`. Monitor with `herdr wait agent-status` /
   `pane read --source visible` and respond on `blocked`.
 
-## Monitoring
-- A **background waker** (`scratchpad/waker.sh`) polls each pane every 30s and
-  writes to `/tmp/banfe-<task>-state.log`, firing a herdr notification on
-  terminal status. Stop with `touch /tmp/banfe-waker.stop`. Waker PID is in
-  `/tmp/banfe-<task>-waker.out`.
-- Main thread does short `sleep` + `cat /tmp/...-state.log` + `herdr pane read`
-  to stay responsive without blocking.
+## Monitoring (session 1: migrated to socket push)
+- **`scratchpad/waker-socket.py`** — persistent python3 daemon subscribing to
+  `pane.agent_status_changed` via `$HERDR_SOCKET_PATH`. Push-based (~1s reaction),
+  watches MANY panes in ONE socket connection, does NOT exit on `blocked` (the
+  session-1 gap that let T2 sit blocked for ~10 min). Poll fallback every 60s.
+- Launch: `nohup python3 scratchpad/waker-socket.py "w1D:p1=T2-backend" "w1E:p1=T3a-ui" > /tmp/banfe-waker-socket.out 2>&1 &`
+  (format: `PANE=LABEL`, first hyphen-token of LABEL = filename stem).
+- State files (orchestrator polls these between turns, O(1)):
+  - `/tmp/banfe-<stem>-state.log` — append-only status log.
+  - `/tmp/banfe-<stem>-notify.flag` — `blocked`/`done`/`idle` sets it (with ts);
+    `working` clears it. **Check this first** when resuming a session.
+  - `/tmp/banfe-waker-socket.pid` — daemon PID. Stop: `touch /tmp/banfe-waker.stop`.
+- **`scratchpad/waker.sh`** — polling fallback (bash, no python3/socket).
+- Current daemon: PID 71751, watching T2 + T3a.
 
 ## Batch progress
 
