@@ -13,11 +13,11 @@ export interface LayoutProps {
 
 export function Layout({ children, className }: LayoutProps) {
   const { t } = useTranslation();
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = () => {
-    void logout().then(() => navigate('/login'));
+    void signOut().then(() => navigate('/login'));
   };
 
   return (

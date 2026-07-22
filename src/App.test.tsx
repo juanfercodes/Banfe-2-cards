@@ -5,8 +5,8 @@ import { App } from './App';
 import { renderWithProviders } from './test/render';
 
 describe('<App />', () => {
-  it('renders the dashboard placeholder route', async () => {
+  it('redirects an unauthenticated visitor from / to /login', async () => {
     renderWithProviders(<App />, { route: '/', withRouter: false });
-    expect(await screen.findByText('Página en construcción')).toBeInTheDocument();
+    expect(await screen.findByRole('tab', { name: /iniciar sesión|sign in/i })).toBeInTheDocument();
   });
 });
