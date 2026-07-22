@@ -22,9 +22,7 @@ function baseSummary(overrides: Partial<ScoreSummary> = {}): ScoreSummary {
 describe('<InterpretationHint />', () => {
   it('renders the clinical disclaimer', () => {
     renderWithProviders(<InterpretationHint summary={baseSummary()} />);
-    expect(
-      screen.getByText(/no constituye un diagnóstico clínico/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/no constituye un diagnóstico clínico/i)).toBeInTheDocument();
   });
 
   it('switches the text by tendency', () => {

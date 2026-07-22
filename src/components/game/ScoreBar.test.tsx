@@ -26,10 +26,9 @@ afterEach(() => {
 
 describe('<ScoreBar />', () => {
   it('shows running total, turn counter and penalizations', () => {
-    renderWithProviders(
-      <ScoreBar runningTotal={17} turn={3} totalTurns={10} penalizations={2} />,
-      { withRouter: false },
-    );
+    renderWithProviders(<ScoreBar runningTotal={17} turn={3} totalTurns={10} penalizations={2} />, {
+      withRouter: false,
+    });
 
     expect(screen.getByTestId('score-value')).toHaveTextContent('17');
     expect(screen.getByText('3 / 10')).toBeInTheDocument();
@@ -37,10 +36,9 @@ describe('<ScoreBar />', () => {
   });
 
   it('exposes progress as a progressbar with the right fraction', () => {
-    renderWithProviders(
-      <ScoreBar runningTotal={0} turn={3} totalTurns={10} penalizations={0} />,
-      { withRouter: false },
-    );
+    renderWithProviders(<ScoreBar runningTotal={0} turn={3} totalTurns={10} penalizations={0} />, {
+      withRouter: false,
+    });
 
     const bar = screen.getByRole('progressbar');
     expect(bar).toHaveAttribute('aria-valuenow', '3');
@@ -51,10 +49,9 @@ describe('<ScoreBar />', () => {
 
   it('drops transition classes when prefers-reduced-motion is set', () => {
     stubMatchMedia(true);
-    renderWithProviders(
-      <ScoreBar runningTotal={5} turn={1} totalTurns={10} penalizations={0} />,
-      { withRouter: false },
-    );
+    renderWithProviders(<ScoreBar runningTotal={5} turn={1} totalTurns={10} penalizations={0} />, {
+      withRouter: false,
+    });
 
     expect(screen.getByTestId('progress-fill').className).not.toMatch(/transition/);
     expect(screen.getByTestId('score-value').style.transform).toBe('');

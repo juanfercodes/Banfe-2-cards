@@ -1,16 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import {
-  canDraw,
-  createGame,
-  draw,
-  remaining,
-} from '@/lib/gameEngine';
+import { canDraw, createGame, draw, remaining } from '@/lib/gameEngine';
 import type { GameState, StackId } from '@/lib/gameEngine';
-import {
-  DECK_SIZE,
-  SHORT_TOTAL_TURNS,
-  TOTAL_TURNS,
-} from '@/lib/protocol';
+import { DECK_SIZE, SHORT_TOTAL_TURNS, TOTAL_TURNS } from '@/lib/protocol';
 
 function playFullGame(totalTurns = TOTAL_TURNS, seed = 42): GameState {
   let state = createGame({ totalTurns, seed });

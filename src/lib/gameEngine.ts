@@ -1,10 +1,4 @@
-import {
-  type StackCard,
-  type StackId,
-  DECK_SIZE,
-  TOTAL_TURNS,
-  buildDeck,
-} from '@/lib/protocol';
+import { type StackCard, type StackId, DECK_SIZE, TOTAL_TURNS, buildDeck } from '@/lib/protocol';
 import { createRng } from '@/lib/rng';
 
 export type { StackId } from '@/lib/protocol';
@@ -31,11 +25,13 @@ export type GameState = {
 
 const ALL_STACKS: readonly StackId[] = [1, 2, 3, 4, 5] as const;
 
-export function createGame(opts: {
-  totalTurns?: number;
-  seed?: number;
-  rng?: () => number;
-} = {}): GameState {
+export function createGame(
+  opts: {
+    totalTurns?: number;
+    seed?: number;
+    rng?: () => number;
+  } = {},
+): GameState {
   const seed = opts.seed ?? 0;
   const rng = opts.rng ?? createRng(seed);
   const totalTurns = opts.totalTurns ?? TOTAL_TURNS;

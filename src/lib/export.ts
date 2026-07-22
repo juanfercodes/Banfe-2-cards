@@ -18,7 +18,19 @@ export interface SessionExportRow {
 
 const STACK_IDS: readonly StackId[] = [1, 2, 3, 4, 5] as const;
 
-const HEADERS: Record<ExportLocale, { patientCode: string; date: string; totalNet: string; penalizations: string; index: string; duration: string; stack: (id: StackId) => string; learningCurve: string }> = {
+const HEADERS: Record<
+  ExportLocale,
+  {
+    patientCode: string;
+    date: string;
+    totalNet: string;
+    penalizations: string;
+    index: string;
+    duration: string;
+    stack: (id: StackId) => string;
+    learningCurve: string;
+  }
+> = {
   es: {
     patientCode: 'Paciente',
     date: 'Fecha',
@@ -43,7 +55,11 @@ const HEADERS: Record<ExportLocale, { patientCode: string; date: string; totalNe
 
 const INTL_LOCALE: Record<ExportLocale, string> = { es: 'es-ES', en: 'en-US' };
 
-function formatDuration(row: SessionExportRow, locale: ExportLocale, numberFormatter: Intl.NumberFormat): string {
+function formatDuration(
+  row: SessionExportRow,
+  locale: ExportLocale,
+  numberFormatter: Intl.NumberFormat,
+): string {
   if (row.endedAt) {
     const minutes = Math.round(
       (new Date(row.endedAt).getTime() - new Date(row.startedAt).getTime()) / 60000,
@@ -55,7 +71,10 @@ function formatDuration(row: SessionExportRow, locale: ExportLocale, numberForma
 
 export function exportSessions(rows: SessionExportRow[], locale: ExportLocale = 'es'): Blob {
   const headers = HEADERS[locale];
-  const dateFormatter = new Intl.DateTimeFormat(INTL_LOCALE[locale], { dateStyle: 'short', timeStyle: 'short' });
+  const dateFormatter = new Intl.DateTimeFormat(INTL_LOCALE[locale], {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  });
   const numberFormatter = new Intl.NumberFormat(INTL_LOCALE[locale]);
 
   const headerRow = [
@@ -101,7 +120,11 @@ export function downloadWorkbook(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
-export function exportSessionsToFile(rows: SessionExportRow[], locale: ExportLocale = 'es', filename?: string): void {
+export function exportSessionsToFile(
+  rows: SessionExportRow[],
+  locale: ExportLocale = 'es',
+  filename?: string,
+): void {
   const blob = exportSessions(rows, locale);
   const stamp = new Date().toISOString().slice(0, 10);
   downloadWorkbook(blob, filename ?? `sessions-${stamp}.xlsx`);

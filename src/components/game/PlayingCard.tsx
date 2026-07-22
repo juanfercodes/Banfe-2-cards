@@ -32,7 +32,10 @@ function CardBack({ label }: { label: string }) {
     <div
       role="img"
       aria-label={label}
-      className={cn(faceBase, 'bg-gradient-to-br from-accent to-accent/70 [backface-visibility:hidden]')}
+      className={cn(
+        faceBase,
+        'bg-gradient-to-br from-accent to-accent/70 [backface-visibility:hidden]',
+      )}
     >
       <div className="flex h-[calc(100%-12px)] w-[calc(100%-12px)] items-center justify-center rounded-lg border-2 border-white/40 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25)_1px,transparent_1px)] bg-[length:10px_10px]">
         <span className="text-xl font-black text-white/80">B2</span>
@@ -103,7 +106,14 @@ function CardFront({
   );
 }
 
-export function PlayingCard({ stack, reward, hadPenalty, penalty, revealed, flipped }: PlayingCardProps) {
+export function PlayingCard({
+  stack,
+  reward,
+  hadPenalty,
+  penalty,
+  revealed,
+  flipped,
+}: PlayingCardProps) {
   const { t } = useTranslation();
   const reducedMotion = usePrefersReducedMotion();
   const showFront = revealed && flipped;

@@ -56,7 +56,9 @@ describe('interpret', () => {
   });
 
   it('reports a disadvantageous tendency for a summary favoring high stacks', () => {
-    const result = interpret(baseSummary({ advantageDisadvantageIndex: -8, learningCurve: [1, 1] }));
+    const result = interpret(
+      baseSummary({ advantageDisadvantageIndex: -8, learningCurve: [1, 1] }),
+    );
     expect(result.tendency).toBe('disadvantageous');
     expect(result.textKey).toBe('results.interpretation.disadvantageous_stable');
   });

@@ -14,7 +14,11 @@ const sizes: Record<NonNullable<SpinnerProps['size']>, string> = {
 
 export function Spinner({ size = 'md', className, label }: SpinnerProps) {
   return (
-    <span className={cn('inline-flex items-center', className)} role="status" aria-label={label ?? 'loading'}>
+    <span
+      className={cn('inline-flex items-center', className)}
+      role="status"
+      aria-label={label ?? 'loading'}
+    >
       <span
         className={cn(
           'inline-block animate-spin rounded-full border-current border-t-transparent text-accent',

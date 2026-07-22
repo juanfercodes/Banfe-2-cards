@@ -40,10 +40,9 @@ describe('<Stack />', () => {
   it('is disabled and does not draw when canDraw is false', async () => {
     const onDraw = vi.fn();
     const user = userEvent.setup();
-    renderWithProviders(
-      <Stack {...baseProps} canDraw={false} remaining={0} onDraw={onDraw} />,
-      { withRouter: false },
-    );
+    renderWithProviders(<Stack {...baseProps} canDraw={false} remaining={0} onDraw={onDraw} />, {
+      withRouter: false,
+    });
 
     const button = screen.getByRole('button', { name: /Mazo 2/ });
     expect(button).toBeDisabled();
@@ -87,10 +86,9 @@ describe('<Stack />', () => {
   });
 
   it('shows the empty state when the pile is exhausted', () => {
-    renderWithProviders(
-      <Stack {...baseProps} remaining={0} canDraw={false} onDraw={vi.fn()} />,
-      { withRouter: false },
-    );
+    renderWithProviders(<Stack {...baseProps} remaining={0} canDraw={false} onDraw={vi.fn()} />, {
+      withRouter: false,
+    });
     expect(screen.getByText('Vacío')).toBeInTheDocument();
   });
 });

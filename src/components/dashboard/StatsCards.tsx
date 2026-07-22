@@ -43,7 +43,13 @@ export function computeDashboardStats(patients: Patient[], sessions: Session[]):
     null,
   );
 
-  return { totalPatients, totalSessions, avgTotalNet, avgAdvantageDisadvantageIndex, lastSessionDate };
+  return {
+    totalPatients,
+    totalSessions,
+    avgTotalNet,
+    avgAdvantageDisadvantageIndex,
+    lastSessionDate,
+  };
 }
 
 export interface StatsCardsProps {
@@ -55,9 +61,12 @@ export function StatsCards({ patients, sessions }: StatsCardsProps) {
   const { t, i18n } = useTranslation();
   const stats = computeDashboardStats(patients, sessions);
   const category = classifyIndex(stats.avgAdvantageDisadvantageIndex);
-  const dateFormatter = new Intl.DateTimeFormat(i18n.language.startsWith('en') ? 'en-US' : 'es-ES', {
-    dateStyle: 'medium',
-  });
+  const dateFormatter = new Intl.DateTimeFormat(
+    i18n.language.startsWith('en') ? 'en-US' : 'es-ES',
+    {
+      dateStyle: 'medium',
+    },
+  );
 
   const hasSessions = stats.totalSessions > 0;
 

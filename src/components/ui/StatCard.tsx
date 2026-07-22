@@ -20,7 +20,13 @@ export function StatCard({ label, value, sublabel, delta, icon, className }: Sta
         <p className="mt-1 text-2xl font-semibold text-default">{value}</p>
         {(sublabel || delta) && (
           <p className="mt-1 text-xs text-muted">
-            {delta && <span className={cn('mr-2', delta.startsWith('+') ? 'text-green-400' : 'text-red-400')}>{delta}</span>}
+            {delta && (
+              <span
+                className={cn('mr-2', delta.startsWith('+') ? 'text-green-400' : 'text-red-400')}
+              >
+                {delta}
+              </span>
+            )}
             {sublabel}
           </p>
         )}

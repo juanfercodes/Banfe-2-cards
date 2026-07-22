@@ -24,7 +24,10 @@ export function ScoreBar({ runningTotal, turn, totalTurns, penalizations }: Scor
             {t('game.score')}
           </div>
           {reducedMotion ? (
-            <span data-testid="score-value" className="text-2xl font-bold tabular-nums text-default">
+            <span
+              data-testid="score-value"
+              className="text-2xl font-bold tabular-nums text-default"
+            >
               {runningTotal}
             </span>
           ) : (

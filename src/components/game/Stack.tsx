@@ -24,10 +24,7 @@ export function Stack({ stack, reward, remaining, canDraw, onDraw, lastEvent = n
   const reducedMotion = usePrefersReducedMotion();
 
   const topCard = (
-    <span
-      aria-hidden="true"
-      className={cn(pileCard, pileBack, 'flex items-center justify-center')}
-    >
+    <span aria-hidden="true" className={cn(pileCard, pileBack, 'flex items-center justify-center')}>
       <span className="flex h-[calc(100%-12px)] w-[calc(100%-12px)] items-center justify-center rounded-lg border-2 border-white/40 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25)_1px,transparent_1px)] bg-[length:10px_10px]">
         <span className="text-lg font-black text-white/80">B2</span>
       </span>
@@ -48,10 +45,16 @@ export function Stack({ stack, reward, remaining, canDraw, onDraw, lastEvent = n
         )}
       >
         {remaining > 2 && (
-          <span aria-hidden="true" className={cn(pileCard, pileBack, 'left-1.5 top-1.5 opacity-60')} />
+          <span
+            aria-hidden="true"
+            className={cn(pileCard, pileBack, 'left-1.5 top-1.5 opacity-60')}
+          />
         )}
         {remaining > 1 && (
-          <span aria-hidden="true" className={cn(pileCard, pileBack, 'left-0.5 top-0.5 opacity-80')} />
+          <span
+            aria-hidden="true"
+            className={cn(pileCard, pileBack, 'left-0.5 top-0.5 opacity-80')}
+          />
         )}
         {remaining > 0 ? (
           reducedMotion ? (
@@ -77,7 +80,10 @@ export function Stack({ stack, reward, remaining, canDraw, onDraw, lastEvent = n
         </span>
       </button>
 
-      <div className="flex h-36 w-24 items-center justify-center" data-testid={`reveal-slot-${stack}`}>
+      <div
+        className="flex h-36 w-24 items-center justify-center"
+        data-testid={`reveal-slot-${stack}`}
+      >
         {lastEvent && (
           <div key={lastEvent.turn}>
             <PlayingCard

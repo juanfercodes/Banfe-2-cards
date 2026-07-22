@@ -14,7 +14,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const inputId = id ?? generatedId;
     const errorId = `${inputId}-error`;
     const helperId = `${inputId}-helper`;
-    const describedBy = [helperText ? helperId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined;
+    const describedBy =
+      [helperText ? helperId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined;
 
     return (
       <div className={cn('w-full', className)}>

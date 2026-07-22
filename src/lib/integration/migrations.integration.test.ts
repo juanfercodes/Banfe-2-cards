@@ -120,7 +120,13 @@ describe('migrations: 0001_init + 0002_rls', () => {
       where c.relname in ('patients', 'sessions') and c.relkind = 'r';
     `;
     const rows = await runSql<
-      { table: string; rls: boolean; policy: string | null; using: string | null; withcheck: string | null }[]
+      {
+        table: string;
+        rls: boolean;
+        policy: string | null;
+        using: string | null;
+        withcheck: string | null;
+      }[]
     >(sql);
 
     const patients = rows.filter((r) => r.table === 'patients');
@@ -156,9 +162,7 @@ describe('migrations: 0001_init + 0002_rls', () => {
     expect(anon).toEqual([]);
     expect(authed.map((r) => r.table).sort()).toEqual(['patients', 'sessions']);
     for (const row of authed) {
-      expect(row.privs.split(',').sort()).toEqual(
-        ['DELETE', 'INSERT', 'SELECT', 'UPDATE'].sort(),
-      );
+      expect(row.privs.split(',').sort()).toEqual(['DELETE', 'INSERT', 'SELECT', 'UPDATE'].sort());
     }
   });
 });

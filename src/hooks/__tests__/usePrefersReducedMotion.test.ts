@@ -22,7 +22,10 @@ function stubMatchMedia(matches: boolean) {
     }),
     dispatchEvent: vi.fn(),
   };
-  vi.stubGlobal('matchMedia', vi.fn(() => mql));
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn(() => mql),
+  );
   return {
     emit(next: boolean) {
       mql.matches = next;

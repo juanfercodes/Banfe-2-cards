@@ -45,7 +45,14 @@ describe('<Table />', () => {
     const user = userEvent.setup();
     const handleRowClick = vi.fn();
     const data: Row[] = [{ id: '1', name: 'Alice', score: 10 }];
-    renderWithProviders(<Table data={data} columns={columns} keyExtractor={(row) => row.id} onRowClick={handleRowClick} />);
+    renderWithProviders(
+      <Table
+        data={data}
+        columns={columns}
+        keyExtractor={(row) => row.id}
+        onRowClick={handleRowClick}
+      />,
+    );
     await user.click(screen.getByRole('row', { name: /Alice/i }));
     expect(handleRowClick).toHaveBeenCalledWith(data[0]);
   });

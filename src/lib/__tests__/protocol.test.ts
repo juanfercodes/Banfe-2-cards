@@ -19,10 +19,20 @@ describe('CONTINGENCIES', () => {
 
   it('matches §3 row-for-row', () => {
     expect(CONTINGENCIES[0]).toEqual({ stack: 1, reward: 1, penalty: 0, penaltyProbability: 0 });
-    expect(CONTINGENCIES[1]).toEqual({ stack: 2, reward: 2, penalty: -1, penaltyProbability: 0.25 });
+    expect(CONTINGENCIES[1]).toEqual({
+      stack: 2,
+      reward: 2,
+      penalty: -1,
+      penaltyProbability: 0.25,
+    });
     expect(CONTINGENCIES[2]).toEqual({ stack: 3, reward: 3, penalty: -3, penaltyProbability: 0.5 });
     expect(CONTINGENCIES[3]).toEqual({ stack: 4, reward: 4, penalty: -6, penaltyProbability: 0.5 });
-    expect(CONTINGENCIES[4]).toEqual({ stack: 5, reward: 5, penalty: -10, penaltyProbability: 0.6 });
+    expect(CONTINGENCIES[4]).toEqual({
+      stack: 5,
+      reward: 5,
+      penalty: -10,
+      penaltyProbability: 0.6,
+    });
   });
 });
 

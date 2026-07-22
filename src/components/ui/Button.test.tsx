@@ -32,7 +32,11 @@ describe('<Button />', () => {
   it('does not fire click when disabled', async () => {
     const user = userEvent.setup();
     const handleClick = vi.fn();
-    renderWithProviders(<Button onClick={handleClick} disabled>Save</Button>);
+    renderWithProviders(
+      <Button onClick={handleClick} disabled>
+        Save
+      </Button>,
+    );
     await user.click(screen.getByRole('button'));
     expect(handleClick).not.toHaveBeenCalled();
   });

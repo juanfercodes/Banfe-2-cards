@@ -37,7 +37,10 @@ export function AllProviders({
   return <MemoryRouter initialEntries={[route]}>{inner}</MemoryRouter>;
 }
 
-export function renderWithProviders(ui: React.ReactNode, options: RenderOptions & WrapperOptions = {}) {
+export function renderWithProviders(
+  ui: React.ReactNode,
+  options: RenderOptions & WrapperOptions = {},
+) {
   const { route, withRouter, ...renderOptions } = options;
   return render(ui, {
     wrapper: ({ children }) => (

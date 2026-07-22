@@ -80,7 +80,9 @@ describe('<LoginForm />', () => {
     await user.type(screen.getByLabelText(/^contraseña$|^password$/i), 'short');
     await user.click(screen.getByRole('button', { name: /iniciar sesión|sign in/i }));
 
-    expect(await screen.findByText(/al menos 8 caracteres|at least 8 characters/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/al menos 8 caracteres|at least 8 characters/i),
+    ).toBeInTheDocument();
     expect(signIn).not.toHaveBeenCalled();
   });
 
@@ -119,7 +121,10 @@ describe('<LoginForm />', () => {
 
     await user.type(screen.getByLabelText(/correo electrónico|email/i), 'new@clinic.test');
     await user.type(screen.getByLabelText(/^contraseña$|^password$/i), 'longenoughpw');
-    await user.type(screen.getByLabelText(/confirmar contraseña|confirm password/i), 'longenoughpw');
+    await user.type(
+      screen.getByLabelText(/confirmar contraseña|confirm password/i),
+      'longenoughpw',
+    );
     await user.click(screen.getByRole('button', { name: /crear cuenta|create account/i }));
 
     expect(await screen.findByTestId('location')).toHaveTextContent('/');

@@ -1,9 +1,5 @@
 import type { TurnEvent, StackId } from '@/lib/gameEngine';
-import {
-  ADVANTAGEOUS_STACKS,
-  BLOCK_SIZE,
-  DISADVANTAGEOUS_STACKS,
-} from '@/lib/protocol';
+import { ADVANTAGEOUS_STACKS, BLOCK_SIZE, DISADVANTAGEOUS_STACKS } from '@/lib/protocol';
 
 export type ScoreSummary = {
   totalNet: number;

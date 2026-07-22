@@ -65,19 +65,13 @@ async function createSessionFor(
   return response.data as SessionRow;
 }
 
-async function selectPatientById(
-  client: TestClient,
-  id: string,
-): Promise<PatientRow[]> {
+async function selectPatientById(client: TestClient, id: string): Promise<PatientRow[]> {
   const response = await client.from('patients').select('*').eq('id', id);
   if (response.error) throw response.error;
   return response.data as PatientRow[];
 }
 
-async function selectSessionById(
-  client: TestClient,
-  id: string,
-): Promise<SessionRow[]> {
+async function selectSessionById(client: TestClient, id: string): Promise<SessionRow[]> {
   const response = await client.from('sessions').select('*').eq('id', id);
   if (response.error) throw response.error;
   return response.data as SessionRow[];

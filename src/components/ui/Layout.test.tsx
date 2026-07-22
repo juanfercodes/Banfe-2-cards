@@ -21,7 +21,9 @@ describe('<Layout />', () => {
     );
 
     expect(screen.getByRole('link', { name: /Banfe-2-cards/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Cambiar a inglés|Switch to Spanish/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Cambiar a inglés|Switch to Spanish/i }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Cerrar sesión|Sign out/i })).toBeInTheDocument();
     expect(screen.getByTestId('locale-label')).toHaveTextContent('Página en construcción');
   });

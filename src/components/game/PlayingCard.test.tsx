@@ -41,10 +41,9 @@ describe('<PlayingCard />', () => {
   });
 
   it('shows the penalty chip when hadPenalty', () => {
-    renderWithProviders(
-      <PlayingCard {...baseProps} hadPenalty penalty={-3} />,
-      { withRouter: false },
-    );
+    renderWithProviders(<PlayingCard {...baseProps} hadPenalty penalty={-3} />, {
+      withRouter: false,
+    });
     expect(screen.getByTestId('penalty-chip')).toHaveTextContent('-3');
     expect(screen.getByTestId('penalty-chip')).toHaveAccessibleName(/3/);
   });
@@ -59,10 +58,9 @@ describe('<PlayingCard />', () => {
   });
 
   it('applies a green tint for advantageous stacks and red for disadvantageous', () => {
-    const { unmount } = renderWithProviders(
-      <PlayingCard {...baseProps} stack={1} reward={1} />,
-      { withRouter: false },
-    );
+    const { unmount } = renderWithProviders(<PlayingCard {...baseProps} stack={1} reward={1} />, {
+      withRouter: false,
+    });
     expect(screen.getByTestId('card-front').className).toMatch(/emerald/);
     unmount();
 
@@ -72,7 +70,9 @@ describe('<PlayingCard />', () => {
 
   it('renders without transforms or animated floats when prefers-reduced-motion is set', () => {
     stubMatchMedia(true);
-    renderWithProviders(<PlayingCard {...baseProps} hadPenalty penalty={-3} />, { withRouter: false });
+    renderWithProviders(<PlayingCard {...baseProps} hadPenalty penalty={-3} />, {
+      withRouter: false,
+    });
 
     const inner = screen.getByTestId('card-inner');
     expect(inner.style.transform).toBe('');

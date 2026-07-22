@@ -4,7 +4,12 @@ import type { ScoreSummary } from '@/lib/scoring';
 import type { TurnEvent } from '@/lib/gameEngine';
 import { BLOCK_SIZE, TOTAL_TURNS, SHORT_TOTAL_TURNS } from '@/lib/protocol';
 
-function makeEvent(turn: number, stack: 1 | 2 | 3 | 4 | 5, net: number, hadPenalty: boolean): TurnEvent {
+function makeEvent(
+  turn: number,
+  stack: 1 | 2 | 3 | 4 | 5,
+  net: number,
+  hadPenalty: boolean,
+): TurnEvent {
   return {
     turn,
     stack,

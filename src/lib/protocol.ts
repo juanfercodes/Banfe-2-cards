@@ -31,7 +31,11 @@ export type StackCard = {
   penalty: number;
 };
 
-export function buildDeck(stack: StackId, size: number = DECK_SIZE, rng: () => number): StackCard[] {
+export function buildDeck(
+  stack: StackId,
+  size: number = DECK_SIZE,
+  rng: () => number,
+): StackCard[] {
   const contingency = CONTINGENCIES.find((c) => c.stack === stack);
   if (!contingency) {
     throw new Error(`Unknown stack: ${stack}`);

@@ -7,7 +7,13 @@ function patient(id: string, code: string): Patient {
   return { id, clinicianId: 'c1', code, createdAt: '2026-01-01T00:00:00.000Z' };
 }
 
-function session(id: string, patientId: string, startedAt: string, totalNet: number, advDisadvIndex: number): Session {
+function session(
+  id: string,
+  patientId: string,
+  startedAt: string,
+  totalNet: number,
+  advDisadvIndex: number,
+): Session {
   return {
     id,
     patientId,

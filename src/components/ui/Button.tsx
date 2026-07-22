@@ -30,7 +30,10 @@ const sizes: Record<ButtonSize, string> = {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, className, variant = 'primary', size = 'md', isLoading, disabled, ...props }, ref) => {
+  (
+    { children, className, variant = 'primary', size = 'md', isLoading, disabled, ...props },
+    ref,
+  ) => {
     const { t } = useTranslation();
     return (
       <button

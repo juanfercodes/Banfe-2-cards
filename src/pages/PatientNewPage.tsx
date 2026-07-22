@@ -73,7 +73,10 @@ export default function PatientNewPage() {
           {...(error ? { error } : {})}
         />
         {conflictCode && (
-          <div role="alert" className="rounded-lg border border-red-500/50 bg-red-500/10 p-3 text-sm">
+          <div
+            role="alert"
+            className="rounded-lg border border-red-500/50 bg-red-500/10 p-3 text-sm"
+          >
             <p className="text-red-400">{t('patient.conflict')}</p>
             <button
               type="button"

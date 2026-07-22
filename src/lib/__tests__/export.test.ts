@@ -27,9 +27,7 @@ describe('exportSessions', () => {
   it('returns a Blob with the xlsx MIME type', () => {
     const blob = exportSessions(buildRows(), 'es');
     expect(blob).toBeInstanceOf(Blob);
-    expect(blob.type).toBe(
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    );
+    expect(blob.type).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   });
 
   it('writes Spanish headers and expands perStack + learningCurve', async () => {
