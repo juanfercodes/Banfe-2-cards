@@ -12,8 +12,8 @@ import { TOTAL_TURNS } from '@/lib/protocol';
 import { type ScoreSummary, summarize } from '@/lib/scoring';
 
 export interface UseGameOptions {
-  totalTurns?: number;
-  seed?: number;
+  totalTurns?: number | undefined;
+  seed?: number | undefined;
 }
 
 export interface UseGameResult {
