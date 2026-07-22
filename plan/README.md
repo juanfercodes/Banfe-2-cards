@@ -109,7 +109,9 @@ Stack 3 is neutral.
 - `net_total` = sum of all turn net results.
 - `per_stack` = `{ [stack]: net }` for stacks 1..5.
 - `penalizations` = count of penalization events.
-- `learning_curve` = net per block of 40 turns → array of 5 numbers.
+- `learning_curve` = net per block of 40 turns → array of `ceil(totalTurns/40)`
+  numbers (5 blocks for a full 200-turn session, 3 blocks for a 100-turn short
+  session — per the formula; `SHORT_BLOCKS` is exported as 3 for clarity).
 - `adv_disadv_index` = `(sum of draws in stacks 1,2) − (sum of draws in stacks 4,5)`.
   Positive ⇒ advantageous/strategic; negative ⇒ disadvantageous/impulsive.
 
