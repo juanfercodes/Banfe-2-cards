@@ -210,7 +210,7 @@ bug was polling daemon flag files (a dead-daemon dependency) instead of polling 
 ### Batch 4 — Integration (after Batch 3)
 | Task | Status | Worktree | Branch | Pane | PR |
 |---|---|---|---|---|---|
-| T4 | ⬜ queued | — | `feat/t4-integration` | — | — |
+| T4 | 🟡 running — CLAUDE Opus 4.8 high +ultracode; launched session 2 ~00:04 | `~/.herdr/worktrees/Banfe-2-cards/feat-t4-integration` | `feat/t4-integration` | `w1M:p1` (ws `w1M`) | robust waiter (harness-tracked, polls herdr) |
 
 ### Batch 5 — Ship (after Batch 4)
 | Task | Status | Worktree | Branch | Pane | PR |
