@@ -5,7 +5,24 @@
 > (PRs merged? branches? pane states?) — see `plan/PREAMBLE.md` and the
 > herdr-orchestrator skill. Update this file at every batch boundary.
 
-Last updated: 2026-07-21 21:39 (session 1 — Batch 2 launched)
+Last updated: 2026-07-21 21:48 (session 1 — T1 merged, T2/T3a running, infra ready)
+
+## Infra ready (session 1, orchestrator-prepared)
+- **`.env`** in main checkout with local Supabase URL + anon key (gitignored, verified).
+- **`.gitleaks.toml`** + **`.githooks/pre-commit`** secret-scan hook (committed to
+  develop). Blocks staged `.env` + runs `gitleaks --staged`. Activate per checkout:
+  `git config core.hooksPath .githooks`. Allowlists the local demo anon key.
+- **gitleaks** installed via Homebrew (v8.30.1).
+- **Plan fix**: `learning_curve` block count for short sessions = `ceil(100/40)=3`
+  (was incorrectly stated as 2). T1 worker flagged it; formula is authoritative.
+
+## Infra pending (user-side, needs your accounts)
+- **Supabase prod project**: create at supabase.com, note URL + anon key for Vercel.
+  Do NOT apply migrations yet (T2 writes them; apply after T2 merges).
+- **`supabase login`** + `supabase link --project-ref <ref>` in main checkout.
+- **Vercel project**: `vercel link` or import on vercel.com (Vite preset). No deploy
+  until T2+T3b/d/e merge.
+- **GitHub** (optional): protect `main`, leave `develop` open for our direct merges.
 
 ## Workflow change (session 1): NO PRs — direct merge to develop
 - `gh` token is for `juanfercodesletz` (only `pull` perms on
@@ -87,11 +104,13 @@ Last updated: 2026-07-21 21:39 (session 1 — Batch 2 launched)
 ### Batch 2 — Core layers (parallel; launched 21:37)
 | Task | Status | Worktree | Branch | Pane | PR |
 |---|---|---|---|---|---|
-| T1 | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t1-engine` | `feat/t1-engine` | `w1C:p1` (ws `w1C`) | n/a |
+| T1 | ✅ merged to develop (21:47, 1 commit, 53 tests green) | — | `feat/t1-engine` | `w1C:p1` (ws `w1C`) | n/a |
 | T2 | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t2-backend` | `feat/t2-backend` | `w1D:p1` (ws `w1D`) | n/a |
 | T3a | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t3a-ui-foundation` | `feat/t3a-ui-foundation` | `w1E:p1` (ws `w1E`) | n/a |
 
-Wakers: T1 PID 44905 (`/tmp/banfe-t1-state.log`), T2 PID 44906 (`/tmp/banfe-t2-state.log`), T3a PID 44907 (`/tmp/banfe-t3a-state.log`). Stop all: `touch /tmp/banfe-waker.stop`.
+Wakers: T2 PID 44906 (`/tmp/banfe-t2-state.log`), T3a PID 44907 (`/tmp/banfe-t3a-state.log`). Stop all: `touch /tmp/banfe-waker.stop`.
+
+**Batch 2 merge order**: T1 ✅ done. When T2 and T3a finish, rebase each onto latest `origin/develop` (they branched before the gitleaks + plan-fix commits) then FF-merge. T2 and T3a touch disjoint files (supabase/* + src/lib/dataAccess.ts vs src/components/ui/*), so no conflicts expected between them.
 
 ### Batch 3 — UI features (parallel after Batch 2 merges)
 | Task | Status | Worktree | Branch | Pane | PR |
