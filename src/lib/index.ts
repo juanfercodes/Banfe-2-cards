@@ -22,3 +22,5 @@ export {
   remaining,
 } from '@/lib/gameEngine';
 export { type ScoreSummary, summarize } from '@/lib/scoring';
+export * from './dataAccess';
+export { supabase, getSupabase, type Supabase } from './supabaseClient';
