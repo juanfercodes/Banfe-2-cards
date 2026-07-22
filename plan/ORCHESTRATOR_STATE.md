@@ -5,7 +5,24 @@
 > (PRs merged? branches? pane states?) — see `plan/PREAMBLE.md` and the
 > herdr-orchestrator skill. Update this file at every batch boundary.
 
-Last updated: 2026-07-21 21:18 (session 1)
+Last updated: 2026-07-21 21:39 (session 1 — Batch 2 launched)
+
+## Workflow change (session 1): NO PRs — direct merge to develop
+- `gh` token is for `juanfercodesletz` (only `pull` perms on
+  `juanfercodes/Banfe-2-cards`); SSH key pushes as `juanfercodes`. PR creation
+  fails with "must be a collaborator". User chose **direct merge to develop**
+  (no PR) for solo-dev speed.
+- **New worker contract**: workers do NOT push or open PRs. They implement,
+  run gates, rebase onto `origin/develop`, and print DONE/BLOCKED with branch
+  name + summary. The **orchestrator (this session) merges** the branch into
+  `develop` locally (FF or merge) and pushes via SSH.
+- Worker prompts updated accordingly (see "Prompt template" below).
+- T0 was merged this way at 21:33 (FF, 3 commits).
+
+## Vim-hang guard (session 1 lesson)
+- `git rebase --continue` opens vim with no tty → hang. Fixed for all
+  worktrees by setting `git config core.editor true` + `sequence.editor true`
+  per worktree before launching the worker. Re-apply for every new worktree.
 
 ## Base branch
 - `origin/develop` (PR target for all task branches). `main` is production.
@@ -22,7 +39,20 @@ Last updated: 2026-07-21 21:18 (session 1)
 | T3d Auth+Patient+Onboarding | `opencode-go/kimi-k2.7-code` | high |
 | T3e Dashboard+History+Export | `opencode-go/kimi-k2.7-code` | high |
 | T4 Integration+E2E | `opencode-go/kimi-k2.7-code` | high |
-| T5 Docs+Deploy | `opencode-go/glm-5.2` | medium |
+| T5 Docs+Deploy | `localmstudio/qwen/qwen3.6-35b-a3b` | medium | ← moved to local |
+
+### Local model (unlimited, fast, needs review)
+- **`localmstudio/qwen/qwen3.6-35b-a3b`** — 35B MoE, ~70 tps, served via LM Studio
+  (opencode `localmstudio` provider). Unlimited usage; great budget-stretcher.
+- **Trade-off**: less accurate than the cloud models — **always review its output**
+  (diff review + run the gates). Route here for:
+  - Leaf / boilerplate / docs tasks (T5 docs+deploy assigned here).
+  - Test fixtures, barrel files, mechanical refactors.
+  - De-escalation when approaching a cloud cap (K3/GLM/Qwen/K2.7).
+- **Do NOT route here**: reasoning-critical (T1 engine, T4 integration),
+  security-critical (T2 RLS), or the visual centerpiece (T3b game board — K3).
+- Launch form identical to cloud: `--model localmstudio/qwen/qwen3.6-35b-a3b`
+  (no `--variant` — local models don't expose the effort ladder; effort = model).
 
 ## Launch mode (decided session 1)
 - **Workers are `opencode` sessions in herdr panes** (not `claude`). opencode auth
@@ -52,14 +82,16 @@ Last updated: 2026-07-21 21:18 (session 1)
 ### Batch 1 — Foundation (sequential; blocks all)
 | Task | Status | Worktree | Branch | Pane | PR | Notes |
 |---|---|---|---|---|---|---|
-| T0 | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t0-foundation` | `feat/t0-foundation` | `w19:p1` (ws `w19`) | — | opencode K2.7 Code, non-interactive. Waker PID 15074, log `/tmp/banfe-t0-state.log`. |
+| T0 | ✅ merged to develop | — | `feat/t0-foundation` (deleted after merge) | — | n/a (direct merge) | Merged 21:33 FF. 3 commits, gates green, 94.7KB gzip. |
 
-### Batch 2 — Core layers (parallel after T0 merges)
+### Batch 2 — Core layers (parallel; launched 21:37)
 | Task | Status | Worktree | Branch | Pane | PR |
 |---|---|---|---|---|---|
-| T1 | ⬜ queued | — | `feat/t1-engine` | — | — |
-| T2 | ⬜ queued | — | `feat/t2-backend` | — | — |
-| T3a | ⬜ queued | — | `feat/t3a-ui-foundation` | — | — |
+| T1 | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t1-engine` | `feat/t1-engine` | `w1C:p1` (ws `w1C`) | n/a |
+| T2 | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t2-backend` | `feat/t2-backend` | `w1D:p1` (ws `w1D`) | n/a |
+| T3a | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t3a-ui-foundation` | `feat/t3a-ui-foundation` | `w1E:p1` (ws `w1E`) | n/a |
+
+Wakers: T1 PID 44905 (`/tmp/banfe-t1-state.log`), T2 PID 44906 (`/tmp/banfe-t2-state.log`), T3a PID 44907 (`/tmp/banfe-t3a-state.log`). Stop all: `touch /tmp/banfe-waker.stop`.
 
 ### Batch 3 — UI features (parallel after Batch 2 merges)
 | Task | Status | Worktree | Branch | Pane | PR |
