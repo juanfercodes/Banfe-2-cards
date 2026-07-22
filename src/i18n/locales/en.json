@@ -113,7 +113,7 @@
     "pileSummary_one": "Stack {{stack}}: {{count}} card drawn, {{penalties}} with penalty",
     "pileSummary_other": "Stack {{stack}}: {{count}} cards drawn, {{penalties}} with penalty",
     "pileEmpty": "Empty pile",
-    "pilePenaltyBadge": "⚠ {{count}}",
+    "pilePenaltyBadge": "{{count}}",
     "stackName": "Stack {{stack}}",
     "stackRewardLabel": "Reward +{{reward}}",
     "stackAria": "Stack {{stack}}: reward {{reward}} points, {{remaining}} cards remaining",

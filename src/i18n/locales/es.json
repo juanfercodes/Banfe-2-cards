@@ -113,7 +113,7 @@
     "pileSummary_one": "Mazo {{stack}}: {{count}} carta robada, {{penalties}} con penalización",
     "pileSummary_other": "Mazo {{stack}}: {{count}} cartas robadas, {{penalties}} con penalización",
     "pileEmpty": "Monte vacío",
-    "pilePenaltyBadge": "⚠ {{count}}",
+    "pilePenaltyBadge": "{{count}}",
     "stackName": "Mazo {{stack}}",
     "stackRewardLabel": "Recompensa +{{reward}}",
     "stackAria": "Mazo {{stack}}: recompensa {{reward}} puntos, quedan {{remaining}} cartas",
