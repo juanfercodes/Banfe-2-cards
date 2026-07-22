@@ -1,32 +1,12 @@
+import type { StackId } from '@/lib/protocol';
+import type { TurnEvent } from '@/lib/gameEngine';
+import type { ScoreSummary } from '@/lib/scoring';
+
 import type { Supabase } from './supabaseClient';
 
 import { supabase } from './supabaseClient';
 
-// NOTE: T1 (protocol/engine/scoring) has not landed at the time T2 is built.
-// The structural types below (StackId, TurnEvent, ScoreSummary) mirror the
-// shapes described in plan/README.md §3 and are exported here so T3c/T3e can
-// import them. When T1 exports the canonical versions, union-merge by
-// re-exporting T1's types here and removing the local definitions (keep the
-// public Patient/Session shapes stable for downstream consumers).
-
-export type StackId = 1 | 2 | 3 | 4 | 5;
-
-export interface TurnEvent {
-  turn: number;
-  stack: StackId;
-  reward: number;
-  penalization: number;
-  net: number;
-  penalized: boolean;
-}
-
-export interface ScoreSummary {
-  totalNet: number;
-  perStack: Record<StackId, number>;
-  penalizations: number;
-  learningCurve: number[];
-  advDisadvIndex: number;
-}
+export type { StackId, TurnEvent, ScoreSummary };
 
 export interface Patient {
   id: string;
@@ -166,7 +146,7 @@ export async function saveSession(input: SaveSessionInput, client: Supabase = su
     per_stack: input.summary.perStack,
     penalizations: input.summary.penalizations,
     learning_curve: input.summary.learningCurve,
-    adv_disadv_index: input.summary.advDisadvIndex,
+    adv_disadv_index: input.summary.advantageDisadvantageIndex,
     raw_events: input.events,
   };
   const response = await client.from('sessions').insert(row).select('*').single();

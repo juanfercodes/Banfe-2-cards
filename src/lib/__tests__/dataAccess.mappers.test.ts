@@ -62,7 +62,7 @@ describe('mapSession', () => {
       learning_curve: [5, 10, 8, 12, 7],
       adv_disadv_index: 3,
       raw_events: [
-        { turn: 1, stack: 1, reward: 1, penalization: 0, net: 1, penalized: false },
+        { turn: 1, stack: 1, reward: 1, hadPenalty: false, penalty: 0, net: 1, runningTotal: 1 },
       ],
     };
     const session = mapSession(row);

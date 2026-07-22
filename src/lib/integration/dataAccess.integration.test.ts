@@ -59,20 +59,22 @@ afterAll(async () => {
 
 function sampleSummary(): ScoreSummary {
   const perStack: Record<StackId, number> = { 1: 10, 2: 20, 3: 5, 4: 8, 5: -1 };
+  const drawsPerStack: Record<StackId, number> = { 1: 4, 2: 5, 3: 2, 4: 3, 5: 1 };
   return {
     totalNet: 42,
     perStack,
     penalizations: 7,
     learningCurve: [5, 10, 8, 12, 7],
-    advDisadvIndex: 3,
+    advantageDisadvantageIndex: 3,
+    drawsPerStack,
   };
 }
 
 function sampleEvents(): TurnEvent[] {
   return [
-    { turn: 1, stack: 1, reward: 1, penalization: 0, net: 1, penalized: false },
-    { turn: 2, stack: 5, reward: 5, penalization: 10, net: -5, penalized: true },
-    { turn: 3, stack: 2, reward: 2, penalization: 0, net: 2, penalized: false },
+    { turn: 1, stack: 1, reward: 1, hadPenalty: false, penalty: 0, net: 1, runningTotal: 1 },
+    { turn: 2, stack: 5, reward: 5, hadPenalty: true, penalty: 10, net: -5, runningTotal: -4 },
+    { turn: 3, stack: 2, reward: 2, hadPenalty: false, penalty: 0, net: 2, runningTotal: -2 },
   ];
 }
 
@@ -139,7 +141,7 @@ describe('dataAccess: typed CRUD round-trips', () => {
     expect(saved.advDisadvIndex).toBe(3);
     expect(saved.rawEvents).toHaveLength(3);
     expect(saved.rawEvents[0]?.stack).toBe(1);
-    expect(saved.rawEvents[1]?.penalized).toBe(true);
+    expect(saved.rawEvents[1]?.hadPenalty).toBe(true);
     expect(saved.startedAt).toBeTruthy();
     expect(new Date(saved.endedAt ?? '').toISOString()).toBe(endedAt);
 
