@@ -16,19 +16,24 @@ const summary: ScoreSummary = {
 };
 
 describe('<PerStackBreakdown />', () => {
-  it('renders 5 bars with correct nets and aria-labels', () => {
+  it('renders 5 localized bars whose labels include net, reward and penalty', () => {
     renderWithProviders(<PerStackBreakdown summary={summary} />);
-    for (const stack of [1, 2, 3, 4, 5] as const) {
-      const bar = screen.getByLabelText(`Stack ${stack}: net ${summary.perStack[stack]}`);
-      expect(bar).toBeInTheDocument();
-    }
+    const bars = screen.getAllByRole('img');
+    expect(bars).toHaveLength(5);
+    // Localized (es) and information-complete: stack, net, reward and penalty.
+    expect(
+      screen.getByRole('img', { name: 'Mazo 1: neto 20, recompensa +1, penalización 0' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: 'Mazo 5: neto -15, recompensa +5, penalización -10' }),
+    ).toBeInTheDocument();
   });
 
   it('color-codes advantageous, disadvantageous and neutral nets', () => {
     renderWithProviders(<PerStackBreakdown summary={summary} />);
-    const positive = screen.getByLabelText('Stack 1: net 20');
-    const negative = screen.getByLabelText('Stack 5: net -15');
-    const neutral = screen.getByLabelText('Stack 3: net 0');
+    const positive = screen.getByRole('img', { name: /^Mazo 1:/ });
+    const negative = screen.getByRole('img', { name: /^Mazo 5:/ });
+    const neutral = screen.getByRole('img', { name: /^Mazo 3:/ });
 
     expect(positive.querySelector('.bg-green-500')).toBeInTheDocument();
     expect(negative.querySelector('.bg-red-500')).toBeInTheDocument();

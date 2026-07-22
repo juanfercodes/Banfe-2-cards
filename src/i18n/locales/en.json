@@ -129,6 +129,7 @@
     "penalizations": "Penalizations",
     "totalDraws": "Cards drawn",
     "perStack": "Per-stack breakdown",
+    "perStackBar": "Stack {{stack}}: net {{net}}, reward +{{reward}}, penalty {{penalty}}",
     "learningCurve": "Learning curve",
     "drawsPerStack": "Draws per stack",
     "block": "Block {{n}}",

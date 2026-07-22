@@ -32,7 +32,12 @@ export function PerStackBreakdown({ summary }: PerStackBreakdownProps) {
             <li key={stack}>
               <div
                 role="img"
-                aria-label={`Stack ${stack}: net ${net}`}
+                aria-label={t('results.perStackBar', {
+                  stack,
+                  net,
+                  reward: contingency.reward,
+                  penalty: contingency.penalty,
+                })}
                 className="flex items-center gap-3"
               >
                 <span className="w-6 shrink-0 text-xs text-muted">{stack}</span>

@@ -32,16 +32,15 @@ test('login → create patient → play → save → results → dashboard → e
   expect(Number.isNaN(net)).toBe(false);
 
   // Learning curve is exposed as an accessible data table (one row per block).
-  const curveRows = page.getByTestId('learning-curve-table').locator('tbody tr');
-  const blockCount = await curveRows.count();
-  // Protocol formula: ceil(100 / 40) = 3 blocks for the short session.
-  expect(blockCount).toBeGreaterThanOrEqual(2);
+  // Protocol formula: ceil(100 / 40) = 3 blocks for the 100-turn short session.
+  // (plan/README.md's "2 blocks" note is a doc error; the formula is authoritative.)
+  await expect(page.getByTestId('learning-curve-table').locator('tbody tr')).toHaveCount(3);
 
-  // Per-stack breakdown: one accessible bar per stack.
-  await expect(page.getByRole('img', { name: /^Stack \d: net/ })).toHaveCount(5);
+  // Per-stack breakdown: one accessible (localized) bar per stack.
+  await expect(page.getByRole('img', { name: /^Mazo \d:/ })).toHaveCount(5);
 
-  // Draws-per-stack accessible table present.
-  await expect(page.getByTestId('draws-per-stack-table')).toBeAttached();
+  // Draws-per-stack accessible table present with one row per stack.
+  await expect(page.getByTestId('draws-per-stack-table').locator('tbody tr')).toHaveCount(5);
 
   // Export button present.
   await expect(page.getByRole('button', { name: 'Exportar resultados' })).toBeVisible();
