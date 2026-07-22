@@ -26,7 +26,7 @@ export function Layout({ children, className }: LayoutProps) {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link
             to="/"
-            className="text-lg font-bold text-default hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent"
+            className="whitespace-nowrap text-lg font-bold text-default hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent"
           >
             {t('common.appName')}
           </Link>

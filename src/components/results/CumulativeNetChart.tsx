@@ -91,6 +91,8 @@ export function CumulativeNetChart({ events }: CumulativeNetChartProps) {
               tick={{ fill: 'var(--fg-muted)', fontSize: 12 }}
               tickLine={false}
               axisLine={{ stroke: 'var(--border-subtle)' }}
+              interval="preserveStartEnd"
+              minTickGap={24}
             />
             <YAxis
               tick={{ fill: 'var(--fg-muted)', fontSize: 12 }}
