@@ -3,12 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0f1424;
-  --fg: #e7ecf5;
-  --fg-muted: #8b9ab9;
-  --accent: #4f8cff;
-  --card: #1b2238;
-  --border-subtle: #2a3354;
+  --bg: #0c1222;
+  --fg: #e9eef9;
+  --fg-muted: #98a7c7;
+  --accent: #5c94ff;
+  --card: #171e35;
+  --raised: #1e2642;
+  --felt: #10172c;
+  --border-subtle: #2c3757;
 }
 
 html {
@@ -17,4 +19,9 @@ html {
 
 body {
   @apply bg-background text-foreground antialiased;
+}
+
+::selection {
+  background-color: rgb(92 148 255 / 0.35);
+  color: #ffffff;
 }
