@@ -47,7 +47,40 @@
     "seeResults": "Ver resultados",
     "restart": "Reiniciar"
   },
-  "results": {},
+  "results": {
+    "title": "Resultados",
+    "totalNet": "Puntaje neto total",
+    "advDisadvIndex": "Índice ventaja/desventaja",
+    "advantageous": "Ventajoso",
+    "disadvantageous": "Disventajoso",
+    "neutral": "Neutro",
+    "penalizations": "Penalizaciones",
+    "totalDraws": "Cartas tomadas",
+    "perStack": "Desglose por mazo",
+    "learningCurve": "Curva de aprendizaje",
+    "drawsPerStack": "Cartas tomadas por mazo",
+    "block": "Bloque {{n}}",
+    "trend": {
+      "improving": "Mejorando",
+      "declining": "Empeorando",
+      "stable": "Estable"
+    },
+    "interpretation": {
+      "advantageous_improving": "El paciente muestra preferencia por mazos ventajosos y una mejora progresiva a lo largo de la sesión, sugiriendo un buen aprendizaje de la modulación del riesgo.",
+      "advantageous_stable": "El paciente muestra preferencia por mazos ventajosos de forma consistente durante toda la sesión.",
+      "advantageous_declining": "El paciente muestra preferencia por mazos ventajosos, aunque esta tendencia se debilita hacia el final de la sesión.",
+      "disadvantageous_improving": "El paciente muestra preferencia por mazos desventajosos, pero con una mejora progresiva que sugiere aprendizaje en curso.",
+      "disadvantageous_stable": "El paciente muestra preferencia por mazos desventajosos de forma consistente, sugiriendo dificultad en la modulación del riesgo.",
+      "disadvantageous_declining": "El paciente muestra preferencia por mazos desventajosos, con una tendencia que empeora a lo largo de la sesión.",
+      "neutral_improving": "El paciente no muestra una preferencia clara por mazos ventajosos o desventajosos, con una mejora progresiva durante la sesión.",
+      "neutral_stable": "El paciente no muestra una preferencia clara por mazos ventajosos o desventajosos durante la sesión.",
+      "neutral_declining": "El paciente no muestra una preferencia clara por mazos ventajosos o desventajosos, con un desempeño que empeora hacia el final."
+    },
+    "disclaimer": "Esta interpretación es orientativa y no constituye un diagnóstico clínico.",
+    "export": "Exportar resultados",
+    "backToDashboard": "Volver al panel",
+    "noData": "No hay datos de sesión disponibles."
+  },
   "patient": {},
   "route": {
     "placeholder": "Página en construcción"

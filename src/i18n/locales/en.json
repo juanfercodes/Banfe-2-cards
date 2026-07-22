@@ -47,7 +47,40 @@
     "seeResults": "See results",
     "restart": "Restart"
   },
-  "results": {},
+  "results": {
+    "title": "Results",
+    "totalNet": "Total net score",
+    "advDisadvIndex": "Advantage/disadvantage index",
+    "advantageous": "Advantageous",
+    "disadvantageous": "Disadvantageous",
+    "neutral": "Neutral",
+    "penalizations": "Penalizations",
+    "totalDraws": "Cards drawn",
+    "perStack": "Per-stack breakdown",
+    "learningCurve": "Learning curve",
+    "drawsPerStack": "Draws per stack",
+    "block": "Block {{n}}",
+    "trend": {
+      "improving": "Improving",
+      "declining": "Declining",
+      "stable": "Stable"
+    },
+    "interpretation": {
+      "advantageous_improving": "The patient shows a preference for advantageous stacks with progressive improvement across the session, suggesting good learning of risk modulation.",
+      "advantageous_stable": "The patient shows a consistent preference for advantageous stacks throughout the session.",
+      "advantageous_declining": "The patient shows a preference for advantageous stacks, though this trend weakens toward the end of the session.",
+      "disadvantageous_improving": "The patient shows a preference for disadvantageous stacks, but with progressive improvement suggesting ongoing learning.",
+      "disadvantageous_stable": "The patient shows a consistent preference for disadvantageous stacks, suggesting difficulty modulating risk.",
+      "disadvantageous_declining": "The patient shows a preference for disadvantageous stacks, with a trend that worsens across the session.",
+      "neutral_improving": "The patient shows no clear preference for advantageous or disadvantageous stacks, with progressive improvement during the session.",
+      "neutral_stable": "The patient shows no clear preference for advantageous or disadvantageous stacks throughout the session.",
+      "neutral_declining": "The patient shows no clear preference for advantageous or disadvantageous stacks, with performance that worsens toward the end."
+    },
+    "disclaimer": "This interpretation is indicative only and does not constitute a clinical diagnosis.",
+    "export": "Export results",
+    "backToDashboard": "Back to dashboard",
+    "noData": "No session data available."
+  },
   "patient": {},
   "route": {
     "placeholder": "Page under construction"
