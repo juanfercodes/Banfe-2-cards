@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { Button, Card, Layout, Spinner } from '@/components/ui';
+import { Button, Card, Spinner } from '@/components/ui';
 import { HistoryTable, StatsCards } from '@/components/dashboard';
 import { listAllSessions, listPatients, type Patient, type Session } from '@/lib/dataAccess';
 
@@ -42,7 +42,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <Layout>
+    <>
       <h1 className="text-2xl font-bold text-default">{t('dashboard.title')}</h1>
       <p className="mt-1 text-muted">{t('dashboard.welcome')}</p>
 
@@ -96,6 +96,6 @@ export default function DashboardPage() {
           </div>
         </>
       )}
-    </Layout>
+    </>
   );
 }

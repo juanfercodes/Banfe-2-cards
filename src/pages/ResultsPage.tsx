@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import {
   DrawsPerStackChart,
@@ -8,16 +9,18 @@ import {
   PerStackBreakdown,
   computeTendency,
 } from '@/components/results';
-import { Button, StatCard } from '@/components/ui';
+import { Button, Spinner, StatCard } from '@/components/ui';
+import { getPatient, getSession, sessionToScoreSummary } from '@/lib/dataAccess';
+import { exportSessionsToFile, type SessionExportRow } from '@/lib/export';
 import type { TurnEvent } from '@/lib/gameEngine';
 import type { ScoreSummary } from '@/lib/scoring';
 
 export interface ResultsRouteState {
   summary: ScoreSummary;
   events: TurnEvent[];
-  startedAt?: string;
-  endedAt?: string;
-  patientCode?: string;
+  startedAt?: string | undefined;
+  endedAt?: string | undefined;
+  patientCode?: string | undefined;
 }
 
 export interface ResultsExportPayload {
@@ -29,34 +32,128 @@ export interface ResultsPageProps {
   onExport?: (payload: ResultsExportPayload) => void;
 }
 
+interface ResolvedResults {
+  summary: ScoreSummary;
+  events: TurnEvent[];
+  startedAt?: string | undefined;
+  endedAt?: string | undefined;
+  patientCode?: string | undefined;
+}
+
+type Remote =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'ready'; data: ResolvedResults }
+  | { status: 'notFound' };
+
 function isResultsRouteState(value: unknown): value is ResultsRouteState {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'summary' in value &&
-    'events' in value
-  );
+  return typeof value === 'object' && value !== null && 'summary' in value && 'events' in value;
 }
 
 export default function ResultsPage({ onExport }: ResultsPageProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  const { sessionId = '' } = useParams<{ sessionId: string }>();
 
-  const state = isResultsRouteState(location.state) ? location.state : null;
+  const routeState = isResultsRouteState(location.state) ? location.state : null;
 
-  if (!state) {
+  const [remote, setRemote] = useState<Remote>(() => {
+    if (routeState) return { status: 'idle' };
+    if (!sessionId) return { status: 'notFound' };
+    return { status: 'loading' };
+  });
+
+  useEffect(() => {
+    if (routeState || !sessionId) return;
+    let active = true;
+    void (async () => {
+      setRemote({ status: 'loading' });
+      try {
+        const session = await getSession(sessionId);
+        if (!active) return;
+        if (!session) {
+          setRemote({ status: 'notFound' });
+          return;
+        }
+        const patient = await getPatient(session.patientId);
+        if (!active) return;
+        setRemote({
+          status: 'ready',
+          data: {
+            summary: sessionToScoreSummary(session),
+            events: session.rawEvents,
+            startedAt: session.startedAt,
+            endedAt: session.endedAt ?? undefined,
+            patientCode: patient?.code,
+          },
+        });
+      } catch {
+        if (active) setRemote({ status: 'notFound' });
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [routeState, sessionId]);
+
+  let data: ResolvedResults | null = null;
+  if (routeState) {
+    data = {
+      summary: routeState.summary,
+      events: routeState.events,
+      startedAt: routeState.startedAt,
+      endedAt: routeState.endedAt,
+      patientCode: routeState.patientCode,
+    };
+  } else if (remote.status === 'ready') {
+    data = remote.data;
+  }
+
+  if (!data) {
+    if (remote.status === 'notFound') {
+      return (
+        <div className="mx-auto max-w-3xl space-y-4 p-4">
+          <p className="text-default">{t('results.noData')}</p>
+          <Button onClick={() => void navigate('/')}>{t('results.backToDashboard')}</Button>
+        </div>
+      );
+    }
     return (
-      <div className="mx-auto max-w-3xl space-y-4 p-4">
-        <p className="text-default">{t('results.noData')}</p>
-        <Button onClick={() => void navigate('/')}>{t('results.backToDashboard')}</Button>
+      <div
+        className="flex min-h-[40vh] items-center justify-center"
+        role="status"
+        aria-live="polite"
+      >
+        <Spinner size="lg" />
+        <span className="sr-only">{t('common.loading')}</span>
       </div>
     );
   }
 
-  const { summary, events, startedAt, endedAt, patientCode } = state;
+  const { summary, events, startedAt, endedAt, patientCode } = data;
   const totalDraws = Object.values(summary.drawsPerStack).reduce((sum, n) => sum + n, 0);
   const tendency = computeTendency(summary.advantageDisadvantageIndex);
+
+  const handleExport = () => {
+    if (onExport) {
+      onExport({ summary, events });
+      return;
+    }
+    const locale = i18n.language.startsWith('en') ? 'en' : 'es';
+    const row: SessionExportRow = {
+      patientCode: patientCode ?? '—',
+      startedAt: startedAt ?? new Date(0).toISOString(),
+      endedAt: endedAt ?? null,
+      turnCount: events.length,
+      totalNet: summary.totalNet,
+      penalizations: summary.penalizations,
+      advantageDisadvantageIndex: summary.advantageDisadvantageIndex,
+      perStack: summary.perStack,
+      learningCurve: summary.learningCurve,
+    };
+    exportSessionsToFile([row], locale);
+  };
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-4">
@@ -93,7 +190,7 @@ export default function ResultsPage({ onExport }: ResultsPageProps) {
       <InterpretationHint summary={summary} />
 
       <div>
-        <Button onClick={() => onExport?.({ summary, events })}>{t('results.export')}</Button>
+        <Button onClick={handleExport}>{t('results.export')}</Button>
       </div>
     </div>
   );

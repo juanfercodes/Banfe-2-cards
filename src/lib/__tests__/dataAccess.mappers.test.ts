@@ -5,7 +5,9 @@ import {
   mapPatient,
   mapPerStack,
   mapSession,
+  sessionToScoreSummary,
   type PatientRow,
+  type Session,
   type SessionRow,
 } from '../dataAccess';
 
@@ -100,6 +102,51 @@ describe('mapSession', () => {
     expect(session.perStack).toEqual({});
     expect(session.learningCurve).toEqual([]);
     expect(session.rawEvents).toEqual([]);
+  });
+});
+
+describe('sessionToScoreSummary', () => {
+  function makeSession(overrides: Partial<Session> = {}): Session {
+    return {
+      id: 's1',
+      patientId: 'p1',
+      clinicianId: 'c1',
+      startedAt: '2026-01-01T00:00:00Z',
+      endedAt: '2026-01-01T00:20:00Z',
+      totalNet: 42,
+      perStack: { 1: 10, 2: 20, 3: 5, 4: 8, 5: -1 },
+      penalizations: 7,
+      learningCurve: [5, 10, 8, 12, 7],
+      advDisadvIndex: 3,
+      rawEvents: [
+        { turn: 1, stack: 1, reward: 1, hadPenalty: false, penalty: 0, net: 1, runningTotal: 1 },
+        { turn: 2, stack: 5, reward: 5, hadPenalty: true, penalty: -10, net: -5, runningTotal: -4 },
+        { turn: 3, stack: 1, reward: 1, hadPenalty: false, penalty: 0, net: 1, runningTotal: -3 },
+      ],
+      ...overrides,
+    };
+  }
+
+  it('rebuilds a ScoreSummary from the stored session fields', () => {
+    const summary = sessionToScoreSummary(makeSession());
+    expect(summary.totalNet).toBe(42);
+    expect(summary.penalizations).toBe(7);
+    expect(summary.advantageDisadvantageIndex).toBe(3);
+    expect(summary.learningCurve).toEqual([5, 10, 8, 12, 7]);
+    expect(summary.perStack).toEqual({ 1: 10, 2: 20, 3: 5, 4: 8, 5: -1 });
+  });
+
+  it('derives drawsPerStack from raw events with all five stacks present', () => {
+    const summary = sessionToScoreSummary(makeSession());
+    expect(summary.drawsPerStack).toEqual({ 1: 2, 2: 0, 3: 0, 4: 0, 5: 1 });
+  });
+
+  it('normalizes a partial per_stack record to all five stacks', () => {
+    const summary = sessionToScoreSummary(
+      makeSession({ perStack: { 2: 4 } as Session['perStack'], rawEvents: [] }),
+    );
+    expect(summary.perStack).toEqual({ 1: 0, 2: 4, 3: 0, 4: 0, 5: 0 });
+    expect(summary.drawsPerStack).toEqual({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
   });
 });
 

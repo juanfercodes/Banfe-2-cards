@@ -5,16 +5,24 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import {
   PatientConflictError,
   createPatient,
+  getSession,
   getSessionHistory,
   getPatient,
   listAllSessions,
   listPatients,
   saveSession,
+  sessionToScoreSummary,
   type ScoreSummary,
   type StackId,
   type TurnEvent,
 } from '@/lib/dataAccess';
-import { createTestUser, deleteTestUser, getAuthedClient, nextTestEmail, type TestClient } from '@/test/integration.setup';
+import {
+  createTestUser,
+  deleteTestUser,
+  getAuthedClient,
+  nextTestEmail,
+  type TestClient,
+} from '@/test/integration.setup';
 
 interface Clinician {
   email: string;
@@ -153,7 +161,38 @@ describe('dataAccess: typed CRUD round-trips', () => {
     expect(found?.rawEvents[2]?.net).toBe(2);
   });
 
-  it('listAllSessions returns only the current clinician\'s rows', async () => {
+  it('getSession fetches a saved session by id and reconstructs its ScoreSummary', async () => {
+    const patient = await createPatient('P-GET', clinicianA.client);
+    const saved = await saveSession(
+      {
+        patientId: patient.id,
+        summary: sampleSummary(),
+        events: sampleEvents(),
+        startedAt: '2026-04-01T00:00:00.000Z',
+        endedAt: '2026-04-01T00:20:00.000Z',
+      },
+      clinicianA.client,
+    );
+
+    const fetched = await getSession(saved.id, clinicianA.client);
+    expect(fetched).not.toBeNull();
+    expect(fetched?.id).toBe(saved.id);
+    expect(fetched?.totalNet).toBe(42);
+
+    const summary = sessionToScoreSummary(fetched!);
+    expect(summary.totalNet).toBe(42);
+    expect(summary.advantageDisadvantageIndex).toBe(3);
+    expect(summary.perStack[2]).toBe(20);
+    // drawsPerStack is derived from raw events: sampleEvents draws stacks 1, 5, 2.
+    expect(summary.drawsPerStack[1]).toBe(1);
+    expect(summary.drawsPerStack[5]).toBe(1);
+    expect(summary.drawsPerStack[3]).toBe(0);
+
+    const other = await getSession(saved.id, clinicianB.client);
+    expect(other).toBeNull();
+  });
+
+  it("listAllSessions returns only the current clinician's rows", async () => {
     const patientA = await createPatient('P-ALL-A', clinicianA.client);
     const patientB = await createPatient('P-ALL-B', clinicianB.client);
 
@@ -187,7 +226,7 @@ describe('dataAccess: typed CRUD round-trips', () => {
     expect(bSessions.some((s) => s.patientId === patientA.id)).toBe(false);
   });
 
-  it('getPatient returns null for another clinician\'s patient id', async () => {
+  it("getPatient returns null for another clinician's patient id", async () => {
     const own = await createPatient('P-OWN', clinicianA.client);
     const other = await createPatient('P-OTHER', clinicianB.client);
     const seenOwn = await getPatient(own.id, clinicianA.client);

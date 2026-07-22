@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Fast, no-network gates: type check, lint, formatting, unit tests, build.
+  static-and-unit:
+    name: Typecheck / Lint / Unit / Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - run: npm ci
+
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run test
+      - run: npm run build
+
+  # Integration + E2E against a local Supabase stack (Docker).
+  # GitHub-hosted ubuntu runners include Docker. If a runner cannot run Docker,
+  # set `continue-on-error: true` on this job and open a TODO — do NOT delete it.
+  integration-e2e:
+    name: Integration + E2E (local Supabase)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - run: npm ci
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase stack
+        run: supabase start
+
+      - name: Export local Supabase keys
+        run: |
+          supabase status -o env | sed 's/^/SUPABASE_/' >> "$GITHUB_ENV"
+          # Provide the service-role key under the name the integration harness expects.
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | grep '^SERVICE_ROLE_KEY=' | cut -d= -f2- | tr -d '\"')" >> "$GITHUB_ENV"
+
+      - name: Reset database (apply migrations on a clean DB)
+        run: npm run supabase:db:reset
+
+      - name: Integration tests
+        run: npm run test:integration
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

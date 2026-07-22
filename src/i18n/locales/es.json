@@ -116,7 +116,8 @@
     "progress": "Progreso del juego",
     "finished": "Juego terminado",
     "seeResults": "Ver resultados",
-    "restart": "Reiniciar"
+    "restart": "Reiniciar",
+    "saveError": "No se pudo guardar la sesión. Intenta de nuevo."
   },
   "results": {
     "title": "Resultados",

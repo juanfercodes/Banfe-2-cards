@@ -116,7 +116,8 @@
     "progress": "Game progress",
     "finished": "Game finished",
     "seeResults": "See results",
-    "restart": "Restart"
+    "restart": "Restart",
+    "saveError": "Could not save the session. Please try again."
   },
   "results": {
     "title": "Results",

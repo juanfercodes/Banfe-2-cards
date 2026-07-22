@@ -29,23 +29,24 @@ export function PerStackBreakdown({ summary }: PerStackBreakdownProps) {
           const contingency = CONTINGENCIES.find((c) => c.stack === stack)!;
           const widthPct = (Math.abs(net) / maxAbs) * 100;
           return (
-            <li
-              key={stack}
-              role="img"
-              aria-label={`Stack ${stack}: net ${net}`}
-              className="flex items-center gap-3"
-            >
-              <span className="w-6 shrink-0 text-xs text-muted">{stack}</span>
-              <div className="h-4 flex-1 overflow-hidden rounded bg-surface">
-                <div
-                  className={cn('h-full', barColorClass(net))}
-                  style={{ width: `${widthPct}%` }}
-                />
+            <li key={stack}>
+              <div
+                role="img"
+                aria-label={`Stack ${stack}: net ${net}`}
+                className="flex items-center gap-3"
+              >
+                <span className="w-6 shrink-0 text-xs text-muted">{stack}</span>
+                <div className="h-4 flex-1 overflow-hidden rounded bg-surface">
+                  <div
+                    className={cn('h-full', barColorClass(net))}
+                    style={{ width: `${widthPct}%` }}
+                  />
+                </div>
+                <span className="w-16 shrink-0 text-right text-xs text-default">{net}</span>
+                <span className="w-32 shrink-0 text-right text-xs text-muted">
+                  +{contingency.reward} / {contingency.penalty}
+                </span>
               </div>
-              <span className="w-16 shrink-0 text-right text-xs text-default">{net}</span>
-              <span className="w-32 shrink-0 text-right text-xs text-muted">
-                +{contingency.reward} / {contingency.penalty}
-              </span>
             </li>
           );
         })}

@@ -74,7 +74,9 @@ function isPostgrestError(error: unknown): error is { code: string; message: str
   return typeof error === 'object' && error !== null && 'code' in error && 'message' in error;
 }
 
-export function mapPerStack(raw: Record<string, number> | null | undefined): Record<StackId, number> {
+export function mapPerStack(
+  raw: Record<string, number> | null | undefined,
+): Record<StackId, number> {
   const result = {} as Record<StackId, number>;
   if (!raw) return result;
   for (const [key, value] of Object.entries(raw)) {
@@ -111,6 +113,30 @@ export function mapSession(row: SessionRow): Session {
   };
 }
 
+const ALL_STACK_IDS: readonly StackId[] = [1, 2, 3, 4, 5] as const;
+
+export function sessionToScoreSummary(session: Session): ScoreSummary {
+  const perStack = {} as Record<StackId, number>;
+  const drawsPerStack = {} as Record<StackId, number>;
+  for (const stack of ALL_STACK_IDS) {
+    perStack[stack] = session.perStack[stack] ?? 0;
+    drawsPerStack[stack] = 0;
+  }
+  for (const event of session.rawEvents) {
+    if (drawsPerStack[event.stack] !== undefined) {
+      drawsPerStack[event.stack] += 1;
+    }
+  }
+  return {
+    totalNet: session.totalNet,
+    perStack,
+    penalizations: session.penalizations,
+    learningCurve: session.learningCurve,
+    advantageDisadvantageIndex: session.advDisadvIndex,
+    drawsPerStack,
+  };
+}
+
 export async function createPatient(code: string, client: Supabase = supabase): Promise<Patient> {
   const response = await client.from('patients').insert({ code }).select().single();
   if (response.error) {
@@ -137,7 +163,10 @@ export async function getPatient(id: string, client: Supabase = supabase): Promi
   return response.data ? mapPatient(response.data as PatientRow) : null;
 }
 
-export async function saveSession(input: SaveSessionInput, client: Supabase = supabase): Promise<Session> {
+export async function saveSession(
+  input: SaveSessionInput,
+  client: Supabase = supabase,
+): Promise<Session> {
   const row = {
     patient_id: input.patientId,
     started_at: input.startedAt,
@@ -152,6 +181,12 @@ export async function saveSession(input: SaveSessionInput, client: Supabase = su
   const response = await client.from('sessions').insert(row).select('*').single();
   if (response.error) throw response.error;
   return mapSession(response.data as SessionRow);
+}
+
+export async function getSession(id: string, client: Supabase = supabase): Promise<Session | null> {
+  const response = await client.from('sessions').select('*').eq('id', id).maybeSingle();
+  if (response.error) throw response.error;
+  return response.data ? mapSession(response.data as SessionRow) : null;
 }
 
 export async function getSessionHistory(

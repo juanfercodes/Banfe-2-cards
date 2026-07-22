@@ -51,7 +51,11 @@ export function HistoryTable({ patients, sessions }: HistoryTableProps) {
 
   const locale = i18n.language.startsWith('en') ? 'en' : 'es';
   const dateFormatter = useMemo(
-    () => new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' }),
+    () =>
+      new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'es-ES', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      }),
     [locale],
   );
 
@@ -62,7 +66,11 @@ export function HistoryTable({ patients, sessions }: HistoryTableProps) {
   }, [patients]);
 
   const allRows = useMemo<HistoryRow[]>(
-    () => sessions.map((session) => ({ session, patientCode: patientCodeById.get(session.patientId) ?? '—' })),
+    () =>
+      sessions.map((session) => ({
+        session,
+        patientCode: patientCodeById.get(session.patientId) ?? '—',
+      })),
     [sessions, patientCodeById],
   );
 
@@ -107,7 +115,7 @@ export function HistoryTable({ patients, sessions }: HistoryTableProps) {
   };
 
   const handleExport = () => {
-    const rows = visibleRows.map(toExportRow);
+    const rows = sortedRows.map(toExportRow);
     const blob = exportSessions(rows, locale);
     const stamp = new Date().toISOString().slice(0, 10);
     downloadWorkbook(blob, `${t('export.filenamePrefix')}-${stamp}.xlsx`);
@@ -131,7 +139,12 @@ export function HistoryTable({ patients, sessions }: HistoryTableProps) {
       header: t('dashboard.col.index'),
       render: (row) => {
         const category = classifyIndex(row.session.advDisadvIndex);
-        const variant = category === 'advantageous' ? 'success' : category === 'disadvantageous' ? 'danger' : 'neutral';
+        const variant =
+          category === 'advantageous'
+            ? 'success'
+            : category === 'disadvantageous'
+              ? 'danger'
+              : 'neutral';
         return (
           <Badge variant={variant}>
             {row.session.advDisadvIndex} · {t(`dashboard.history.filter.${category}`)}

@@ -6,7 +6,7 @@ import type { ScoreSummary } from '@/lib/scoring';
 import { useGameContext } from './GameContext';
 import { ScoreBar } from './ScoreBar';
 import { Stack } from './Stack';
-import { Button, Card, Layout } from '../ui';
+import { Button, Card } from '../ui';
 
 export type GameFinishHandler = (summary: ScoreSummary, events: TurnEvent[], seed: number) => void;
 
@@ -23,7 +23,7 @@ export function GameBoard({ onFinish, subtitle }: GameBoardProps) {
   const isShort = state.totalTurns === SHORT_TOTAL_TURNS;
 
   return (
-    <Layout>
+    <>
       <ScoreBar
         runningTotal={state.runningTotal}
         turn={state.turn}
@@ -67,14 +67,11 @@ export function GameBoard({ onFinish, subtitle }: GameBoardProps) {
       {isFinished && (
         <Card padding="md" className="mt-8 text-center" aria-live="polite">
           <p className="text-lg font-semibold text-default">{t('game.finished')}</p>
-          <Button
-            className="mt-3"
-            onClick={() => onFinish?.(summary, state.events, seed)}
-          >
+          <Button className="mt-3" onClick={() => onFinish?.(summary, state.events, seed)}>
             {t('game.seeResults')}
           </Button>
         </Card>
       )}
-    </Layout>
+    </>
   );
 }
