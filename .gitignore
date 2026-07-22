@@ -25,3 +25,17 @@ Thumbs.db
 # Env
 .env
 .env.local
+*.local
+
+# Testing
+playwright-report/
+test-results/
+coverage/
+.vitest/
+
+# Supabase
+supabase/.branches/
+supabase/.temp/
+
+# TypeScript
+*.tsbuildinfo
