@@ -23,7 +23,31 @@
     "newPatient": "New patient",
     "signOut": "Sign out"
   },
-  "auth": {},
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "signOut": "Sign out",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "forgotPassword": "Forgot your password?",
+    "welcome": "Welcome",
+    "loginRequired": "You must sign in to continue",
+    "resetPasswordSuccess": "We sent you a link to reset your password",
+    "validation": {
+      "emailRequired": "Enter your email",
+      "emailInvalid": "Enter a valid email address",
+      "passwordRequired": "Enter your password",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "confirmPasswordMismatch": "Passwords do not match"
+    },
+    "authError": {
+      "invalidCredentials": "Incorrect email or password",
+      "emailInUse": "An account with this email already exists",
+      "weakPassword": "Password is too weak",
+      "unknown": "Something went wrong. Please try again."
+    }
+  },
   "dashboard": {},
   "game": {
     "title": "Game session",
@@ -81,8 +105,27 @@
     "backToDashboard": "Back to dashboard",
     "noData": "No session data available."
   },
-  "patient": {},
+  "patient": {
+    "create": "Create patient",
+    "code": "Patient code",
+    "codePlaceholder": "e.g. PAT-001",
+    "createSuccess": "Patient created successfully",
+    "conflict": "A patient with this code already exists",
+    "conflictCta": "Go play",
+    "pickExisting": "Select patient",
+    "search": "Search patient by code",
+    "validation": {
+      "codeRequired": "Enter a code",
+      "codeNoSpaces": "The code cannot contain spaces",
+      "codeTooLong": "The code is too long"
+    }
+  },
   "route": {
     "placeholder": "Page under construction"
+  },
+  "onboarding": {
+    "firstSessionTitle": "First session: gentle introduction",
+    "firstSessionBody": "This first session is shorter so the patient can get familiar with the game.",
+    "shortModeBadge": "Short session"
   }
 }

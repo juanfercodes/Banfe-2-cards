@@ -23,7 +23,31 @@
     "newPatient": "Nuevo paciente",
     "signOut": "Cerrar sesión"
   },
-  "auth": {},
+  "auth": {
+    "signIn": "Iniciar sesión",
+    "signUp": "Crear cuenta",
+    "signOut": "Cerrar sesión",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "welcome": "Bienvenido",
+    "loginRequired": "Debes iniciar sesión para continuar",
+    "resetPasswordSuccess": "Te enviamos un enlace para restablecer tu contraseña",
+    "validation": {
+      "emailRequired": "Ingresa tu correo electrónico",
+      "emailInvalid": "Ingresa un correo electrónico válido",
+      "passwordRequired": "Ingresa tu contraseña",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+      "confirmPasswordMismatch": "Las contraseñas no coinciden"
+    },
+    "authError": {
+      "invalidCredentials": "Correo o contraseña incorrectos",
+      "emailInUse": "Ya existe una cuenta con este correo",
+      "weakPassword": "La contraseña es demasiado débil",
+      "unknown": "Ocurrió un error. Intenta de nuevo."
+    }
+  },
   "dashboard": {},
   "game": {
     "title": "Sesión de juego",
@@ -81,8 +105,27 @@
     "backToDashboard": "Volver al panel",
     "noData": "No hay datos de sesión disponibles."
   },
-  "patient": {},
+  "patient": {
+    "create": "Crear paciente",
+    "code": "Código del paciente",
+    "codePlaceholder": "Ej. PAC-001",
+    "createSuccess": "Paciente creado correctamente",
+    "conflict": "Ya existe un paciente con este código",
+    "conflictCta": "Ir a jugar",
+    "pickExisting": "Seleccionar paciente",
+    "search": "Buscar paciente por código",
+    "validation": {
+      "codeRequired": "Ingresa un código",
+      "codeNoSpaces": "El código no puede contener espacios",
+      "codeTooLong": "El código es demasiado largo"
+    }
+  },
   "route": {
     "placeholder": "Página en construcción"
+  },
+  "onboarding": {
+    "firstSessionTitle": "Primera sesión: introducción suave",
+    "firstSessionBody": "Esta primera sesión es más corta para que el paciente se familiarice con el juego.",
+    "shortModeBadge": "Sesión corta"
   }
 }
