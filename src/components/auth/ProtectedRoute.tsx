@@ -1,5 +1,11 @@
 import { Outlet } from 'react-router-dom';
 
+import { Layout } from '../ui/Layout';
+
 export function ProtectedRoute() {
-  return <Outlet />;
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  );
 }

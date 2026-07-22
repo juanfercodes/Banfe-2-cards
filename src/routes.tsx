@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 
 import { Suspense, lazy } from 'react';
-import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom';
 
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
@@ -64,6 +64,10 @@ export const router = createBrowserRouter([
         ),
       },
     ],
+  },
+  {
+    path: '*',
+    element: <Navigate to="/login" replace />,
   },
 ]);
 

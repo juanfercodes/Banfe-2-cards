@@ -1,7 +1,27 @@
 {
   "common": {
     "appName": "Banfe-2-cards",
-    "language": "Language"
+    "language": "Language",
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "search": "Search",
+    "sortAsc": "Sort ascending",
+    "sortDesc": "Sort descending",
+    "noData": "No data",
+    "actions": "Actions"
+  },
+  "language": {
+    "es": "Spanish",
+    "en": "English"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "newPatient": "New patient",
+    "signOut": "Sign out"
   },
   "auth": {},
   "dashboard": {},

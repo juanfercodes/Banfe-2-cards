@@ -5,8 +5,14 @@
 :root {
   --bg: #0f1424;
   --fg: #e7ecf5;
+  --fg-muted: #8b9ab9;
   --accent: #4f8cff;
   --card: #1b2238;
+  --border-subtle: #2a3354;
+}
+
+html {
+  @apply bg-background text-foreground;
 }
 
 body {
