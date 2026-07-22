@@ -1,1 +1,1 @@
-export {};
+export { PatientPicker } from './PatientPicker';
