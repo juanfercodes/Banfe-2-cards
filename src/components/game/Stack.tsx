@@ -16,7 +16,7 @@ export interface StackProps {
   events: TurnEvent[];
 }
 
-const pileCard = 'absolute inset-0 rounded-xl border border-subtle';
+const pileCard = 'absolute inset-0 rounded-xl border border-white/15';
 const pileBack = 'bg-gradient-to-br from-accent to-accent/70';
 
 const DECK_SHADOW: Record<number, string> = {
@@ -24,7 +24,7 @@ const DECK_SHADOW: Record<number, string> = {
   2: 'shadow',
   3: 'shadow-md',
   4: 'shadow-lg',
-  5: 'shadow-xl shadow-accent/30',
+  5: 'shadow-xl shadow-accent/25',
 };
 
 export function Stack({ stack, reward, remaining, canDraw, onDraw, events }: StackProps) {
@@ -38,8 +38,9 @@ export function Stack({ stack, reward, remaining, canDraw, onDraw, events }: Sta
       aria-hidden="true"
       className={cn(pileCard, pileBack, shadow, 'flex items-center justify-center')}
     >
-      <span className="flex h-[calc(100%-12px)] w-[calc(100%-12px)] flex-col items-center justify-center gap-1 rounded-lg border-2 border-white/40 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25)_1px,transparent_1px)] bg-[length:10px_10px]">
-        <span className="rounded-md bg-white/15 px-2 py-0.5 text-xl font-black tabular-nums text-white drop-shadow">
+      <span className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 via-transparent to-black/20" />
+      <span className="relative flex h-[calc(100%-12px)] w-[calc(100%-12px)] flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-white/40 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25)_1px,transparent_1px)] bg-[length:10px_10px]">
+        <span className="rounded-md bg-white/15 px-2 py-0.5 text-2xl font-black tabular-nums text-white drop-shadow">
           +{reward}
         </span>
         <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
@@ -57,11 +58,17 @@ export function Stack({ stack, reward, remaining, canDraw, onDraw, events }: Sta
         onClick={() => onDraw(stack)}
         aria-label={t('game.stackAria', { stack, reward, remaining })}
         className={cn(
-          'relative h-36 w-24 rounded-xl transition-transform focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg',
-          canDraw && !reducedMotion && 'hover:-translate-y-1.5 active:translate-y-0',
+          'relative h-36 w-24 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg',
+          canDraw &&
+            !reducedMotion &&
+            'transition-[transform,filter] hover:-translate-y-1.5 hover:brightness-110 active:translate-y-0 active:brightness-95',
           !canDraw && 'cursor-not-allowed',
         )}
       >
+        <span
+          aria-hidden="true"
+          className="absolute -inset-2 rounded-2xl bg-black/25 ring-1 ring-inset ring-white/5"
+        />
         {remaining > 2 && (
           <span
             aria-hidden="true"
@@ -93,7 +100,7 @@ export function Stack({ stack, reward, remaining, canDraw, onDraw, events }: Sta
             {t('game.emptyStack')}
           </span>
         )}
-        <span className="absolute -right-2 -top-2 z-10 rounded-full border border-subtle bg-surface px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-default shadow">
+        <span className="absolute -right-2 -top-2 z-10 rounded-full border border-subtle bg-raised px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-default shadow">
           {remaining}
         </span>
       </button>

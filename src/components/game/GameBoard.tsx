@@ -78,7 +78,11 @@ export function GameBoard({ onFinish, subtitle }: GameBoardProps) {
             {t('game.finalScore')}
           </p>
           <p className="mt-1 text-4xl font-bold tabular-nums text-default">{summary.totalNet}</p>
-          <Button className="mt-5" size="lg" onClick={() => onFinish?.(summary, state.events, seed)}>
+          <Button
+            className="mt-5"
+            size="lg"
+            onClick={() => onFinish?.(summary, state.events, seed)}
+          >
             {t('game.seeResults')}
           </Button>
         </Card>
