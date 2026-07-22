@@ -41,15 +41,22 @@ export function GameBoard({ onFinish, subtitle }: GameBoardProps) {
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-default">{t('game.title')}</h1>
-          {subtitle && <p className="text-sm text-muted">{subtitle}</p>}
+          {subtitle && <p className="mt-0.5 text-sm text-muted">{subtitle}</p>}
         </div>
         <Button variant="secondary" size="sm" onClick={() => reset()}>
           {t('game.restart')}
         </Button>
       </div>
 
-      <div className="mt-6 rounded-3xl border border-subtle bg-gradient-to-b from-surface via-surface to-accent/5 p-4 shadow-inner sm:p-8">
-        <div className="grid grid-cols-2 justify-items-center gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-5">
+      <section
+        aria-label={t('game.boardLabel')}
+        className="relative mt-6 overflow-hidden rounded-3xl border border-subtle bg-felt p-4 shadow-card ring-1 ring-inset ring-white/5 sm:p-8"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-accent/10 via-transparent to-transparent"
+        />
+        <div className="relative grid grid-cols-2 justify-items-center gap-x-4 gap-y-12 sm:grid-cols-3 lg:grid-cols-5">
           {CONTINGENCIES.map(({ stack, reward }) => (
             <Stack
               key={stack}
@@ -62,12 +69,16 @@ export function GameBoard({ onFinish, subtitle }: GameBoardProps) {
             />
           ))}
         </div>
-      </div>
+      </section>
 
       {isFinished && (
-        <Card padding="md" className="mt-8 text-center" aria-live="polite">
+        <Card padding="lg" className="mt-8 text-center shadow-card" aria-live="polite">
           <p className="text-lg font-semibold text-default">{t('game.finished')}</p>
-          <Button className="mt-3" onClick={() => onFinish?.(summary, state.events, seed)}>
+          <p className="mt-3 text-xs font-medium uppercase tracking-wide text-muted">
+            {t('game.finalScore')}
+          </p>
+          <p className="mt-1 text-4xl font-bold tabular-nums text-default">{summary.totalNet}</p>
+          <Button className="mt-5" size="lg" onClick={() => onFinish?.(summary, state.events, seed)}>
             {t('game.seeResults')}
           </Button>
         </Card>

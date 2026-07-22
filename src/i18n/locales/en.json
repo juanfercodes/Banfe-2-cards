@@ -98,6 +98,8 @@
   },
   "game": {
     "title": "Game session",
+    "boardLabel": "Game board",
+    "finalScore": "Final score",
     "patientLabel": "Patient: {{id}}",
     "version": {
       "title": "Session version",
