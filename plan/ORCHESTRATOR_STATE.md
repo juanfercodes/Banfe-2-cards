@@ -235,3 +235,31 @@ bug was polling daemon flag files (a dead-daemon dependency) instead of polling 
 5. `cat /tmp/banfe-*-state.log` — waker output (if still running / files exist).
 6. For any pane still `working`: `herdr pane read <pane> --source recent-unwrapped --lines 50` to see where it is.
 7. Reconcile this file against ground truth, then continue the next batch.
+
+## Session 2 — post-integration GAME REWORK (T6/T7) + cost-driven model routing
+After Batch 1–4 merged, user QA surfaced that the reconstructed protocol was WRONG.
+Corrected via two follow-up tasks (both merged to develop):
+- **T6 game rework** (`claude-fable-5` high, `ee44a8d`): real protocol = **90 cards
+  total (18/stack × 5), draw 50** (was 200/100). Added `GAME_VERSIONS` presets
+  (standard 90/50 = DEFAULT; legacy extended 200 & short 100 kept) + a clinician
+  version selector; **removed learning-curve blocks** (no `BLOCK_SIZE`); Results now
+  shows a **cumulative net-score line** from `raw_events`; added per-stack **discard
+  piles ("monte")**; removed advantage color-cues for assessment neutrality (the game
+  measures risk-management / addictive behavior). `sessions.learning_curve` kept but
+  written `[]` (follow-ups: persist version id; drop dead column). 212 unit + 22 int +
+  6 E2E green; README §3 rewritten.
+- **T7 UI/UX polish** (`opencode-go/kimi-k3` high — **OpenCode, NOT Claude**, `a1b5f1c`):
+  design pass elevating board presence, cards, discard-pile readability, selector,
+  results. Zero `src/lib/` changes (protocol intact); neutrality + a11y + i18n + testids
+  preserved. 212 + 22 + 6 green.
+
+**Cost-driven routing lesson**: when Claude windows tighten, route non-clinical-logic
+work (esp. UI/UX polish) to the **OpenCode pool** (Kimi K3 for game UI — the reserved
+centerpiece model) — a SEPARATE quota from Claude. Same herdr worktree + robust
+harness-polling waiter; OpenCode auth is global (no CLAUDE_CONFIG_DIR). `opencode run
+--model opencode-go/kimi-k3 --variant high --auto --dir <wt> "<prompt>"` runs autonomous
+and exits to shell on finish (waiter catches agent→none). Give it exact clinical
+constraints so the cheaper/other-pool model only does design, never invents numbers.
+
+develop tip after T7: `a1b5f1c`. Remaining plan work: **T5 (docs+deploy)** still queued
+(deploy blocked on user prod infra). The 90/50 game is live for QA at localhost:5173.
