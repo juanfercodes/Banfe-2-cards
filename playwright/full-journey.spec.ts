@@ -9,16 +9,26 @@ import {
   uniquePatientCode,
 } from './helpers';
 
-test('login → create patient → play → save → results → dashboard → export', async ({ page }) => {
+test('login → create patient → play 50 turns → save → results → dashboard → export', async ({
+  page,
+}) => {
   // 1. Authenticate a fresh clinician (clean slate for count assertions).
   await signUpAndIn(page, uniqueEmail('journey'));
 
-  // 2. Create a patient by code; land on the short (100-turn) game.
+  // 2. Create a patient by code; the version selector starts the standard
+  //    90-card / 50-draw game by default.
   const code = uniquePatientCode();
   await createPatientAndStart(page, code);
-  await expect(page.getByText('0 / 100')).toBeVisible();
+  await expect(page.getByText('0 / 50')).toBeVisible();
 
-  // 3. Play through the short session until finished.
+  // 3. Each draw lands on that stack's discard pile ("monte").
+  await page.getByRole('button', { name: /^Mazo 1:/ }).click();
+  await expect(page.getByText('1 / 50')).toBeVisible();
+  await expect(page.getByTestId('discard-pile-summary-1')).toHaveText(
+    'Mazo 1: 1 carta robada, 0 con penalización',
+  );
+
+  // 4. Play through the remaining turns until finished.
   await playToFinish(page);
 
   // Save + navigate to the results page.
@@ -26,15 +36,16 @@ test('login → create patient → play → save → results → dashboard → e
   await page.waitForURL(/\/results\//);
   await expect(page.getByRole('heading', { name: 'Resultados' })).toBeVisible();
 
-  // 4. Results render correctly.
+  // 5. Results render correctly.
   const netText = await statValue(page, 'Puntaje neto total');
   const net = Number(netText);
   expect(Number.isNaN(net)).toBe(false);
 
-  // Learning curve is exposed as an accessible data table (one row per block).
-  // Protocol formula: ceil(100 / 40) = 3 blocks for the 100-turn short session.
-  // (plan/README.md's "2 blocks" note is a doc error; the formula is authoritative.)
-  await expect(page.getByTestId('learning-curve-table').locator('tbody tr')).toHaveCount(3);
+  // Cumulative net-score line: accessible table with one row per turn (50), no
+  // learning-curve blocks anywhere.
+  await expect(page.getByTestId('cumulative-net-table').locator('tbody tr')).toHaveCount(50);
+  await expect(page.getByTestId('learning-curve-table')).toHaveCount(0);
+  expect(await statValue(page, 'Cartas tomadas')).toBe('50');
 
   // Per-stack breakdown: one accessible (localized) bar per stack.
   await expect(page.getByRole('img', { name: /^Mazo \d:/ })).toHaveCount(5);
@@ -45,17 +56,17 @@ test('login → create patient → play → save → results → dashboard → e
   // Export button present.
   await expect(page.getByRole('button', { name: 'Exportar resultados' })).toBeVisible();
 
-  // 5. Back to dashboard; the new session appears in the history table.
+  // 6. Back to dashboard; the new session appears in the history table.
   await page.getByRole('button', { name: 'Volver al panel' }).click();
   await expect(page.getByRole('heading', { name: 'Panel de control' })).toBeVisible();
   await expect(page.getByRole('cell', { name: code })).toBeVisible();
 
-  // 6. Stats reflect exactly one patient / one session, and avg net matches.
+  // 7. Stats reflect exactly one patient / one session, and avg net matches.
   expect(await statValue(page, 'Total de pacientes')).toBe('1');
   expect(await statValue(page, 'Total de sesiones')).toBe('1');
   expect(await statValue(page, 'Total neto promedio')).toBe(net.toFixed(1));
 
-  // 7. Export to Excel fires a download with a .xlsx filename.
+  // 8. Export to Excel fires a download with a .xlsx filename.
   const [download] = await Promise.all([
     page.waitForEvent('download'),
     page.getByRole('button', { name: 'Exportar a Excel' }).click(),

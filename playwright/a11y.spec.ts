@@ -22,12 +22,12 @@ test('no critical/serious axe violations on dashboard, game, and results', async
   await expect(page.getByRole('heading', { name: 'Panel de control' })).toBeVisible();
   await expectNoSeriousA11y(page);
 
-  // Game page.
+  // Game page (standard 90/50 session).
   await createPatientAndStart(page, uniquePatientCode('A11Y'));
-  await expect(page.getByText('0 / 100')).toBeVisible();
+  await expect(page.getByText('0 / 50')).toBeVisible();
   await expectNoSeriousA11y(page);
 
-  // Results page (via a full short session).
+  // Results page (via a full standard session).
   await playToFinish(page);
   await page.getByRole('button', { name: 'Ver resultados' }).click();
   await page.waitForURL(/\/results\//);

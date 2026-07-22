@@ -52,13 +52,17 @@ export async function signIn(
   await expect(page.getByRole('heading', { name: 'Panel de control' })).toBeVisible();
 }
 
-/** From the dashboard, create a patient by code and land on the short game. */
+/** From the dashboard, create a patient by code and start a session through the
+ * version selector (standard 90/50 preselected by default). */
 export async function createPatientAndStart(page: Page, code: string): Promise<void> {
   await page.getByRole('link', { name: 'Nuevo paciente' }).first().click();
   await page.getByLabel('Código del paciente').fill(code);
   await page.getByRole('button', { name: 'Crear paciente' }).click();
   await page.waitForURL(/\/play\//);
-  await expect(page.getByText('Primera sesión: versión corta')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Versión de la sesión' })).toBeVisible();
+  await expect(page.getByRole('radio', { name: /Estándar/ })).toBeChecked();
+  await page.getByRole('button', { name: 'Comenzar sesión' }).click();
+  await expect(page.getByRole('button', { name: /^Mazo 1:/ })).toBeVisible();
 }
 
 /** Click stacks deterministically until the game finishes. */
