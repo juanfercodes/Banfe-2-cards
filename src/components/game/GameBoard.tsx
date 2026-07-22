@@ -35,7 +35,6 @@ export function GameBoard({ onFinish, subtitle }: GameBoardProps) {
         timeRemainingMs={state.timeRemainingMs}
         turn={state.turn}
         totalTurns={state.totalTurns}
-        penalizations={summary.penalizations}
       />
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
