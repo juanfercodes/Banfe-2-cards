@@ -1,0 +1,14 @@
+{
+  "common": {
+    "appName": "Banfe-2-cards",
+    "language": "Language"
+  },
+  "auth": {},
+  "dashboard": {},
+  "game": {},
+  "results": {},
+  "patient": {},
+  "route": {
+    "placeholder": "Page under construction"
+  }
+}
