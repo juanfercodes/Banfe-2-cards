@@ -137,10 +137,12 @@ to the env default otherwise) — `claude --resume <id> --model <id> --effort <l
   (nothing to watch until Batch 3 launches). Relaunch it per-pane when Batch 3 starts.
 - Note: T2 left the local Supabase/Docker stack UP (`npm run supabase:stop` to free it).
 
-## NEXT: Batch 3 — awaiting user go (session 2)
-Launch T3b/T3c/T3d/T3e as Claude worktree sessions (recipe above). T3b game board =
-`claude-fable-5` high (user pick). T3c/d/e proposed Sonnet 5 — confirm at launch.
-Deps: all of Batch 3 depends only on Batch 2 (done) → all four are launchable in parallel.
+## NEXT: Batch 4 (T4 integration+E2E) — awaiting user go (session 2)
+Batch 1/2/3 all merged. T4 wires the slices end-to-end (game→saveSession→results,
+auth flows, dashboard history) + Playwright E2E. Reasoning-critical integration →
+proposed `claude-opus-4-8` high. Single task, own worktree. After T4: Batch 5 (T5
+docs+deploy, proposed `claude-fable-5` low). **Use the harness-tracked herdr-polling
+waiter (post-mortem above), not the detached daemon, for T4 monitoring.**
 
 ## Batch progress
 
@@ -163,16 +165,47 @@ Wakers: T2 PID 44906 (`/tmp/banfe-t2-state.log`), T3a PID 44907 (`/tmp/banfe-t3a
 ### Batch 3 — UI features (parallel; launched session 2 ~23:21 as CLAUDE workers)
 | Task | Status | Worktree | Branch | Pane | Model/Effort |
 |---|---|---|---|---|---|
-| T3b | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t3b-game-board` | `feat/t3b-game-board` | `w1G:p1` (ws `w1G`) | `claude-fable-5` high |
-| T3c | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t3c-results` | `feat/t3c-results` | `w1H:p1` (ws `w1H`) | `claude-sonnet-5` medium |
-| T3d | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t3d-auth-patient` | `feat/t3d-auth-patient` | `w1J:p1` (ws `w1J`) | `claude-sonnet-5` high |
-| T3e | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t3e-dashboard-export` | `feat/t3e-dashboard-export` | `w1K:p1` (ws `w1K`) | `claude-sonnet-5` medium |
+| T3b | ✅ merged (`db57274`) | — | `feat/t3b-game-board` | `w1G:p1` (done) | `claude-fable-5` high |
+| T3c | ✅ merged (`ae76ce7`) | — | `feat/t3c-results` | `w1H:p1` (done) | `claude-sonnet-5` medium |
+| T3d | ✅ merged (`5859ade`) | — | `feat/t3d-auth-patient` | `w1J:p1` (done) | `claude-sonnet-5` high |
+| T3e | ✅ merged (`e70a0b5`) | — | `feat/t3e-dashboard-export` | `w1K:p1` (done) | `claude-sonnet-5` medium |
 
-Waker (session 2): **PID 49739** watching all 4 panes. Workers were told to `npm ci`
-first (fresh worktrees). No-PR contract: each rebases onto origin/develop + reports
-DONE/BLOCKED; orchestrator FF-merges. **Merge order = arrival order**; each later merge
-forces the still-open siblings to rebase (shared hotspots: routes.tsx, App.tsx,
-components/ui/index.ts, i18n/{es,en}.json) — resolve by UNION.
+**Batch 3 COMPLETE** (session 2, merged 23:5x–00:0x): all four FF-merged to develop
+in order T3b → T3c → T3d → T3e. Final integrated develop tip `e70a0b5`, verified on a
+clean `npm ci`: typecheck OK, **192 tests** (40 files), lint clean, build OK.
+Orchestrator did every rebase itself (git-only, token-free) — workers were already
+done, no need to re-launch them to rebase. Conflicts resolved:
+- **i18n `{en,es}.json`** (every merge): deep-union via `scratchpad/i18n-union-merge.py`
+  (reads git stages :2/:3, recursively unions, keeps populated side over empty
+  placeholder, flags real leaf collisions). Reusable.
+- **TS barrels** (`hooks/index.ts`, `lib/index.ts`, `dashboard/index.ts`): union both
+  export lists.
+- **`App.test.tsx`** (T3d vs T3e): a REAL logical conflict — T3d's ProtectedRoute
+  redirects `/`→`/login` for unauthenticated users, so T3e's "renders dashboard at /"
+  assertion could no longer hold. Kept T3d's redirect test, dropped T3e's contradictory
+  block (dashboard still covered by its own `DashboardPage.test.tsx`).
+
+## ⚠️ MONITORING POST-MORTEM (session 2) — detached daemon died between turns
+**Symptom**: the socket waker (`waker-socket.py`, PID 49739) was launched for Batch 3,
+logged `subscribed, listening for events`, then **died silently** during the idle period
+between orchestrator turns — so no flags were written and the human got NO notification
+even though all 4 tasks finished. (The Batch-2 T2 waker survived only because its idle
+gap was short before its waiter re-woke the orchestrator.)
+**Investigation** (two nohup probes run this session): a plain bash sleeper AND a probe
+that faithfully replicates the waker (connect `$HERDR_SOCKET_PATH` + `events.subscribe`
++ recv loop) BOTH survived fine **within an active turn** (5–8 min, stable subscription,
+clean 30s recv timeouts). So the socket subscription is NOT the bug and in-turn nohup is
+fine. The death is tied to the **between-turns idle/suspend window** — detached
+background processes are reaped nondeterministically while the Claude Code session is
+idle waiting for the user. (Cross-turn reap probe left running: `/tmp/banfe-crossturn.log`,
+launched 00:02:07 — last heartbeat timestamp = reap time.)
+**FIX (adopt for every future batch)**: do NOT rely on a detached `nohup` daemon as the
+wake signal. Use a **harness-tracked `run_in_background` Bash waiter that polls `herdr`
+DIRECTLY** (`herdr pane get`/`wait agent-status`), NOT the daemon's flag files. That
+mechanism (this session's `bqkni04fp`/`bpm47wlyy`) survived every turn boundary and
+re-invoked the orchestrator reliably. Keep the socket daemon only as OPTIONAL best-effort
+OS-notification gravy — never as the single point of failure. The earlier waiter's real
+bug was polling daemon flag files (a dead-daemon dependency) instead of polling herdr.
 
 ### Batch 4 — Integration (after Batch 3)
 | Task | Status | Worktree | Branch | Pane | PR |
