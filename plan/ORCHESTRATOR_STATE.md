@@ -195,14 +195,16 @@ logged `subscribed, listening for events`, then **died silently** during the idl
 between orchestrator turns — so no flags were written and the human got NO notification
 even though all 4 tasks finished. (The Batch-2 T2 waker survived only because its idle
 gap was short before its waiter re-woke the orchestrator.)
-**Investigation** (two nohup probes run this session): a plain bash sleeper AND a probe
-that faithfully replicates the waker (connect `$HERDR_SOCKET_PATH` + `events.subscribe`
-+ recv loop) BOTH survived fine **within an active turn** (5–8 min, stable subscription,
-clean 30s recv timeouts). So the socket subscription is NOT the bug and in-turn nohup is
-fine. The death is tied to the **between-turns idle/suspend window** — detached
-background processes are reaped nondeterministically while the Claude Code session is
-idle waiting for the user. (Cross-turn reap probe left running: `/tmp/banfe-crossturn.log`,
-launched 00:02:07 — last heartbeat timestamp = reap time.)
+**Investigation** (three nohup probes this session): (a) plain bash sleeper and (b) a
+probe faithfully replicating the waker (connect `$HERDR_SOCKET_PATH` + `events.subscribe`
++ recv loop) both survived fine **within an active turn** (5–8 min, stable subscription,
+clean 30s recv timeouts) → the socket subscription is NOT the bug. (c) a cross-turn
+heartbeat probe **survived 52 min including T4's ~48-min between-turns idle** (211 hbs).
+**So the initial "reaped during idle" theory is FALSE** — detached nohup CAN survive a
+long idle. **Root cause of the 49739 death is UNDETERMINED**: not the socket pattern,
+not simple idle-reaping, and not a logged code error (the loop catches+logs all
+exceptions, so it was an unlogged signal/one-off — plausibly a herdr-server blip during
+the heavy 4-session launch window, but unconfirmed).
 **FIX (adopt for every future batch)**: do NOT rely on a detached `nohup` daemon as the
 wake signal. Use a **harness-tracked `run_in_background` Bash waiter that polls `herdr`
 DIRECTLY** (`herdr pane get`/`wait agent-status`), NOT the daemon's flag files. That
