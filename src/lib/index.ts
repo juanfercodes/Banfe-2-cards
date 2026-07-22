@@ -25,3 +25,10 @@ export { type ScoreSummary, summarize } from '@/lib/scoring';
 export * from './dataAccess';
 export { supabase, getSupabase, type Supabase } from './supabaseClient';
 export { shouldUseShortMode, firstSessionHint } from './onboarding';
+export {
+  exportSessions,
+  downloadWorkbook,
+  exportSessionsToFile,
+  type ExportLocale,
+  type SessionExportRow,
+} from './export';

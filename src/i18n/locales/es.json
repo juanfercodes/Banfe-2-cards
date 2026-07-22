@@ -48,7 +48,54 @@
       "unknown": "Ocurrió un error. Intenta de nuevo."
     }
   },
-  "dashboard": {},
+  "dashboard": {
+    "title": "Panel de control",
+    "welcome": "Resumen de tus pacientes y sesiones",
+    "newPatient": "Nuevo paciente",
+    "resumePatient": "Retomar paciente",
+    "resumePatientCta": "Ir",
+    "stats": {
+      "totalPatients": "Total de pacientes",
+      "totalSessions": "Total de sesiones",
+      "avgNet": "Total neto promedio",
+      "avgIndex": "Índice ventaja/desventaja promedio",
+      "lastSession": "Última sesión"
+    },
+    "history": {
+      "title": "Historial",
+      "search": "Buscar por código de paciente",
+      "filterLabel": "Filtrar por índice",
+      "sortLabel": "Ordenar por",
+      "filter": {
+        "all": "Todos",
+        "advantageous": "Ventajoso",
+        "disadvantageous": "Desventajoso",
+        "neutral": "Neutral"
+      },
+      "sort": {
+        "date": "Fecha",
+        "net": "Total neto",
+        "index": "Índice"
+      },
+      "page": "Página",
+      "of": "de",
+      "rowsPerPage": "Filas por página",
+      "empty": "Aún no hay pacientes ni sesiones. Crea tu primer paciente para empezar.",
+      "export": "Exportar a Excel",
+      "exported": "Historial exportado"
+    },
+    "col": {
+      "patient": "Paciente",
+      "date": "Fecha",
+      "totalNet": "Total neto",
+      "penalizations": "Penalizaciones",
+      "index": "Índice",
+      "duration": "Duración",
+      "actions": "Acciones",
+      "view": "Ver",
+      "play": "Jugar"
+    }
+  },
   "game": {
     "title": "Sesión de juego",
     "patientLabel": "Paciente: {{id}}",
@@ -127,5 +174,9 @@
     "firstSessionTitle": "Primera sesión: introducción suave",
     "firstSessionBody": "Esta primera sesión es más corta para que el paciente se familiarice con el juego.",
     "shortModeBadge": "Sesión corta"
+  },
+  "export": {
+    "sheetName": "Sesiones",
+    "filenamePrefix": "sesiones"
   }
 }

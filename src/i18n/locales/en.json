@@ -48,7 +48,54 @@
       "unknown": "Something went wrong. Please try again."
     }
   },
-  "dashboard": {},
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Overview of your patients and sessions",
+    "newPatient": "New patient",
+    "resumePatient": "Resume patient",
+    "resumePatientCta": "Go",
+    "stats": {
+      "totalPatients": "Total patients",
+      "totalSessions": "Total sessions",
+      "avgNet": "Average total net",
+      "avgIndex": "Average advantage/disadvantage index",
+      "lastSession": "Last session"
+    },
+    "history": {
+      "title": "History",
+      "search": "Search by patient code",
+      "filterLabel": "Filter by index",
+      "sortLabel": "Sort by",
+      "filter": {
+        "all": "All",
+        "advantageous": "Advantageous",
+        "disadvantageous": "Disadvantageous",
+        "neutral": "Neutral"
+      },
+      "sort": {
+        "date": "Date",
+        "net": "Total net",
+        "index": "Index"
+      },
+      "page": "Page",
+      "of": "of",
+      "rowsPerPage": "Rows per page",
+      "empty": "No patients or sessions yet. Create your first patient to get started.",
+      "export": "Export to Excel",
+      "exported": "History exported"
+    },
+    "col": {
+      "patient": "Patient",
+      "date": "Date",
+      "totalNet": "Total net",
+      "penalizations": "Penalizations",
+      "index": "Index",
+      "duration": "Duration",
+      "actions": "Actions",
+      "view": "View",
+      "play": "Play"
+    }
+  },
   "game": {
     "title": "Game session",
     "patientLabel": "Patient: {{id}}",
@@ -127,5 +174,9 @@
     "firstSessionTitle": "First session: gentle introduction",
     "firstSessionBody": "This first session is shorter so the patient can get familiar with the game.",
     "shortModeBadge": "Short session"
+  },
+  "export": {
+    "sheetName": "Sessions",
+    "filenamePrefix": "sessions"
   }
 }
