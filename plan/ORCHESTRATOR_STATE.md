@@ -133,8 +133,14 @@ to the env default otherwise) — `claude --resume <id> --model <id> --effort <l
 - **`scratchpad/waker.sh`** — polling fallback (bash, no python3/socket).
 - Current daemon (session 2): **PID 97693, watching only `w1D:p1=T2-backend`** (T3a
   merged, dropped). Agent-agnostic — works unchanged for the Claude worker.
-- Batch 2 merge order now: T1 ✅, T3a ✅. Only **T2** left → when it reports DONE,
-  rebase onto `origin/develop` (already includes T1+T3a) + FF-merge + push via SSH.
+- **Batch 2 COMPLETE** (session 2): T1 ✅, T2 ✅, T3a ✅ all merged. Waker stopped
+  (nothing to watch until Batch 3 launches). Relaunch it per-pane when Batch 3 starts.
+- Note: T2 left the local Supabase/Docker stack UP (`npm run supabase:stop` to free it).
+
+## NEXT: Batch 3 — awaiting user go (session 2)
+Launch T3b/T3c/T3d/T3e as Claude worktree sessions (recipe above). T3b game board =
+`claude-fable-5` high (user pick). T3c/d/e proposed Sonnet 5 — confirm at launch.
+Deps: all of Batch 3 depends only on Batch 2 (done) → all four are launchable in parallel.
 
 ## Batch progress
 
@@ -147,7 +153,7 @@ to the env default otherwise) — `claude --resume <id> --model <id> --effort <l
 | Task | Status | Worktree | Branch | Pane | PR |
 |---|---|---|---|---|---|
 | T1 | ✅ merged to develop (21:47, 1 commit, 53 tests green) | — | `feat/t1-engine` | `w1C:p1` (ws `w1C`) | n/a |
-| T2 | 🟡 running — CLAUDE takeover (Opus 4.8 high +ultracode) of GLM's uncommitted WIP; launched session 2 ~22:27 | `~/.herdr/worktrees/Banfe-2-cards/feat-t2-backend` | `feat/t2-backend` | `w1D:p1` (ws `w1D`) | n/a |
+| T2 | ✅ merged to develop (session 2, 22:41 — `869908a`, FF, 4 commits). CLAUDE takeover (Opus 4.8 high +ultracode) of GLM's WIP. Gates: typecheck+lint+build OK, 97 unit + 21 integration (RLS vs local Supabase/Docker) green; RLS empirically + adversarially verified (0 issues). Reconciled T1 canonical types; fixed vitest.integration exclude-leak bug. | — | `feat/t2-backend` | `w1D:p1` (ws `w1D`, done) | n/a |
 | T3a | ✅ merged to develop (session 2, 22:24 — `203d716`, FF, 1 commit; 84 tests + typecheck + lint + build green) | — | `feat/t3a-ui-foundation` | `w1E:p1` (ws `w1E`, done) | n/a |
 
 Wakers: T2 PID 44906 (`/tmp/banfe-t2-state.log`), T3a PID 44907 (`/tmp/banfe-t3a-state.log`). Stop all: `touch /tmp/banfe-waker.stop`.
