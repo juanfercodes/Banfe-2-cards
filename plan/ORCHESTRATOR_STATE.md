@@ -44,7 +44,39 @@ Last updated: 2026-07-21 21:48 (session 1 — T1 merged, T2/T3a running, infra r
 ## Base branch
 - `origin/develop` (PR target for all task branches). `main` is production.
 
-## Model allocation (locked)
+## SESSION 2 PIVOT (2026-07-21 ~22:20) — OpenCode → Claude workers
+OpenCode/GLM hit its shared 5h usage cap mid-Batch-2 (froze T2 with uncommitted
+WIP for ~2.5h). **User decision: migrate all workers from OpenCode to Claude Code
+sessions in the same worktrees, using Claude models + efforts.** The socket waker
+is agent-agnostic (tracks `pane.agent_status_changed` by pane_id — the event even
+carries `"agent":"claude"`), so monitoring needed NO code change, only re-target.
+
+### Claude launch recipe (herdr panes do NOT inherit CLAUDE_CONFIG_DIR)
+Reuse the worktree's own root pane (correct cwd + already on the branch). Kill the
+frozen OpenCode first (`herdr pane send-keys <p> C-c` ×2 → shell), set worktree
+guards (`git config core.editor true; sequence.editor true; core.hooksPath .githooks`),
+then:
+```
+herdr pane run <worktree-root-pane> 'CLAUDE_CONFIG_DIR=/Users/juanfer/.claude-work claude --model <id> --effort <lvl> --dangerously-skip-permissions "<one-line prompt, no single-quotes/$/backtick>"'
+```
+`--dangerously-skip-permissions` auto-passes the trust gate here (config dir already
+trusts the repo). Prepend `ultracode ` in the prompt for security/critical tasks.
+Point the prompt at a takeover/task file by absolute path (dodges shell-quoting).
+On resume after a cap exit: RE-PASS `--model` AND `--effort` (effort silently drifts
+to the env default otherwise) — `claude --resume <id> --model <id> --effort <lvl> ...`.
+
+## Model allocation — CLAUDE (session 2, active)
+| Task | Claude model | Effort | Notes |
+|---|---|---|---|
+| T2 Backend+RLS+Auth | `claude-opus-4-8` | high | +ultracode (security-critical RLS). Takeover of GLM WIP. |
+| T3b Game board | `claude-fable-5` | high | User pick — centerpiece; Fable strong for UI/games (was slated for Kimi K3). |
+| T3c Results screen | TBD (proposed `claude-sonnet-5` medium) | — | confirm at Batch 3 launch |
+| T3d Auth+Patient+Onboarding | TBD (proposed `claude-sonnet-5` high) | — | confirm at Batch 3 launch |
+| T3e Dashboard+History+Export | TBD (proposed `claude-sonnet-5` medium) | — | confirm at Batch 3 launch |
+| T4 Integration+E2E | TBD (proposed `claude-opus-4-8` high) | — | confirm at Batch 4 launch |
+| T5 Docs+Deploy | TBD (proposed `claude-fable-5` low) | — | leaf/docs |
+
+## Model allocation — SESSION 1 (OpenCode, historical; T0/T1 built with these)
 | Task | Model ID | Effort |
 |---|---|---|
 | T0 Foundation | `opencode-go/kimi-k2.7-code` | high |
@@ -99,7 +131,10 @@ Last updated: 2026-07-21 21:48 (session 1 — T1 merged, T2/T3a running, infra r
     `working` clears it. **Check this first** when resuming a session.
   - `/tmp/banfe-waker-socket.pid` — daemon PID. Stop: `touch /tmp/banfe-waker.stop`.
 - **`scratchpad/waker.sh`** — polling fallback (bash, no python3/socket).
-- Current daemon: PID 71751, watching T2 + T3a.
+- Current daemon (session 2): **PID 97693, watching only `w1D:p1=T2-backend`** (T3a
+  merged, dropped). Agent-agnostic — works unchanged for the Claude worker.
+- Batch 2 merge order now: T1 ✅, T3a ✅. Only **T2** left → when it reports DONE,
+  rebase onto `origin/develop` (already includes T1+T3a) + FF-merge + push via SSH.
 
 ## Batch progress
 
@@ -112,8 +147,8 @@ Last updated: 2026-07-21 21:48 (session 1 — T1 merged, T2/T3a running, infra r
 | Task | Status | Worktree | Branch | Pane | PR |
 |---|---|---|---|---|---|
 | T1 | ✅ merged to develop (21:47, 1 commit, 53 tests green) | — | `feat/t1-engine` | `w1C:p1` (ws `w1C`) | n/a |
-| T2 | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t2-backend` | `feat/t2-backend` | `w1D:p1` (ws `w1D`) | n/a |
-| T3a | 🟡 running | `~/.herdr/worktrees/Banfe-2-cards/feat-t3a-ui-foundation` | `feat/t3a-ui-foundation` | `w1E:p1` (ws `w1E`) | n/a |
+| T2 | 🟡 running — CLAUDE takeover (Opus 4.8 high +ultracode) of GLM's uncommitted WIP; launched session 2 ~22:27 | `~/.herdr/worktrees/Banfe-2-cards/feat-t2-backend` | `feat/t2-backend` | `w1D:p1` (ws `w1D`) | n/a |
+| T3a | ✅ merged to develop (session 2, 22:24 — `203d716`, FF, 1 commit; 84 tests + typecheck + lint + build green) | — | `feat/t3a-ui-foundation` | `w1E:p1` (ws `w1E`, done) | n/a |
 
 Wakers: T2 PID 44906 (`/tmp/banfe-t2-state.log`), T3a PID 44907 (`/tmp/banfe-t3a-state.log`). Stop all: `touch /tmp/banfe-waker.stop`.
 
