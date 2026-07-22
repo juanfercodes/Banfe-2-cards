@@ -3,12 +3,13 @@ export {
   type StackId,
   type Contingency,
   type StackCard,
+  type GameVersion,
+  type GameVersionId,
   CONTINGENCIES,
-  DECK_SIZE,
-  TOTAL_TURNS,
-  SHORT_TOTAL_TURNS,
-  SHORT_BLOCKS,
-  BLOCK_SIZE,
+  GAME_VERSIONS,
+  DEFAULT_GAME_VERSION,
+  STACK_COUNT,
+  getGameVersion,
   ADVANTAGEOUS_STACKS,
   DISADVANTAGEOUS_STACKS,
   buildDeck,
@@ -21,10 +22,9 @@ export {
   canDraw,
   remaining,
 } from '@/lib/gameEngine';
-export { type ScoreSummary, summarize } from '@/lib/scoring';
+export { type ScoreSummary, summarize, cumulativeNet } from '@/lib/scoring';
 export * from './dataAccess';
 export { supabase, getSupabase, type Supabase } from './supabaseClient';
-export { shouldUseShortMode, firstSessionHint } from './onboarding';
 export {
   exportSessions,
   downloadWorkbook,

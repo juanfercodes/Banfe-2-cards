@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import {
+  CumulativeNetChart,
   DrawsPerStackChart,
   InterpretationHint,
-  LearningCurveChart,
   PerStackBreakdown,
   computeTendency,
 } from '@/components/results';
@@ -150,7 +150,6 @@ export default function ResultsPage({ onExport }: ResultsPageProps) {
       penalizations: summary.penalizations,
       advantageDisadvantageIndex: summary.advantageDisadvantageIndex,
       perStack: summary.perStack,
-      learningCurve: summary.learningCurve,
     };
     exportSessionsToFile([row], locale);
   };
@@ -185,9 +184,9 @@ export default function ResultsPage({ onExport }: ResultsPageProps) {
       </div>
 
       <PerStackBreakdown summary={summary} />
-      <LearningCurveChart learningCurve={summary.learningCurve} />
+      <CumulativeNetChart events={events} />
       <DrawsPerStackChart drawsPerStack={summary.drawsPerStack} />
-      <InterpretationHint summary={summary} />
+      <InterpretationHint summary={summary} events={events} />
 
       <div>
         <Button onClick={handleExport}>{t('results.export')}</Button>

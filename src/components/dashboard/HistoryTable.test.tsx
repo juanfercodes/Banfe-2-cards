@@ -40,7 +40,6 @@ function session(
     totalNet,
     perStack: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
     penalizations: 0,
-    learningCurve: [],
     advDisadvIndex,
     rawEvents: [],
   };

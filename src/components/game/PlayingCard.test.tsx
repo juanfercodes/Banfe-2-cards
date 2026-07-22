@@ -57,15 +57,15 @@ describe('<PlayingCard />', () => {
     expect(screen.queryByTestId('penalty-chip')).not.toBeInTheDocument();
   });
 
-  it('applies a green tint for advantageous stacks and red for disadvantageous', () => {
+  it('keeps the card face neutral for every stack (no green/red correct-answer cues)', () => {
     const { unmount } = renderWithProviders(<PlayingCard {...baseProps} stack={1} reward={1} />, {
       withRouter: false,
     });
-    expect(screen.getByTestId('card-front').className).toMatch(/emerald/);
+    expect(screen.getByTestId('card-front').className).not.toMatch(/emerald|green|red/);
     unmount();
 
     renderWithProviders(<PlayingCard {...baseProps} stack={5} reward={5} />, { withRouter: false });
-    expect(screen.getByTestId('card-front').className).toMatch(/red/);
+    expect(screen.getByTestId('card-front').className).not.toMatch(/emerald|green|red/);
   });
 
   it('renders without transforms or animated floats when prefers-reduced-motion is set', () => {

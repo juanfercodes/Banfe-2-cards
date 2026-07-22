@@ -4,18 +4,19 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { GameBoard } from './GameBoard';
 import { GameProvider } from './GameProvider';
-import { SHORT_TOTAL_TURNS, TOTAL_TURNS } from '@/lib/protocol';
 import { renderWithProviders } from '../../test/render';
 
 function renderBoard({
-  totalTurns = TOTAL_TURNS,
+  totalTurns,
+  deckSizePerStack,
   onFinish,
 }: {
   totalTurns?: number;
+  deckSizePerStack?: number;
   onFinish?: (summary: unknown, events: unknown, seed: number) => void;
 } = {}) {
   return renderWithProviders(
-    <GameProvider totalTurns={totalTurns} seed={42}>
+    <GameProvider totalTurns={totalTurns} deckSizePerStack={deckSizePerStack} seed={42}>
       <GameBoard onFinish={onFinish} />
     </GameProvider>,
     { route: '/' },
@@ -23,10 +24,34 @@ function renderBoard({
 }
 
 describe('<GameBoard />', () => {
-  it('renders the five stacks', () => {
+  it('renders the five stacks and defaults to the 90/50 game', () => {
     renderBoard();
     const stacks = screen.getAllByRole('button', { name: /^Mazo \d:/ });
     expect(stacks).toHaveLength(5);
+    expect(screen.getByText('0 / 50')).toBeInTheDocument();
+  });
+
+  it('renders a discard pile per stack, empty at start', () => {
+    renderBoard();
+    for (const stack of [1, 2, 3, 4, 5]) {
+      expect(screen.getByTestId(`discard-pile-summary-${stack}`)).toHaveTextContent(
+        `Mazo ${stack}: 0 cartas robadas, 0 con penalización`,
+      );
+    }
+  });
+
+  it('a draw lands on that stack’s discard pile', async () => {
+    const user = userEvent.setup();
+    renderBoard();
+
+    await user.click(screen.getByRole('button', { name: /^Mazo 1:/ }));
+
+    expect(screen.getByTestId('discard-pile-summary-1')).toHaveTextContent(
+      'Mazo 1: 1 carta robada, 0 con penalización',
+    );
+    expect(screen.getByTestId('discard-pile-summary-2')).toHaveTextContent(
+      'Mazo 2: 0 cartas robadas, 0 con penalización',
+    );
   });
 
   it('shows the finish button at isFinished and calls onFinish with summary, events and seed', async () => {
@@ -54,23 +79,37 @@ describe('<GameBoard />', () => {
     expect(typeof summary.penalizations).toBe('number');
   });
 
-  it('restart resets the game', async () => {
+  it('restart resets the game and empties the discard piles', async () => {
     const user = userEvent.setup();
     renderBoard({ totalTurns: 5 });
 
     await user.click(screen.getByRole('button', { name: /^Mazo 3:/ }));
     expect(screen.getByText('1 / 5')).toBeInTheDocument();
+    expect(screen.getByTestId('discard-pile-summary-3')).toHaveTextContent(
+      'Mazo 3: 1 carta robada',
+    );
 
     await user.click(screen.getByRole('button', { name: 'Reiniciar' }));
     expect(screen.getByText('0 / 5')).toBeInTheDocument();
+    expect(screen.getByTestId('discard-pile-summary-3')).toHaveTextContent(
+      'Mazo 3: 0 cartas robadas',
+    );
   });
 
-  it('shows the short-mode banner only when totalTurns is the short value', () => {
-    const { unmount } = renderBoard({ totalTurns: SHORT_TOTAL_TURNS });
-    expect(screen.getByText('Primera sesión: versión corta')).toBeInTheDocument();
-    unmount();
+  it('marks a stack as exhausted after drawing its whole 18-card deck', async () => {
+    const user = userEvent.setup();
+    renderBoard();
 
-    renderBoard({ totalTurns: TOTAL_TURNS });
-    expect(screen.queryByText('Primera sesión: versión corta')).not.toBeInTheDocument();
+    const stack1 = screen.getByRole('button', { name: /^Mazo 1:/ });
+    for (let i = 0; i < 18; i++) {
+      await user.click(stack1);
+    }
+
+    expect(screen.getByRole('button', { name: /^Mazo 1:/ })).toBeDisabled();
+    expect(screen.getByText('Vacío')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Mazo 2:/ })).toBeEnabled();
+    expect(screen.getByTestId('discard-pile-summary-1')).toHaveTextContent(
+      'Mazo 1: 18 cartas robadas',
+    );
   });
 });

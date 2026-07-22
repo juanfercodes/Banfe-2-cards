@@ -15,11 +15,32 @@ export const CONTINGENCIES: readonly Contingency[] = [
   { stack: 5, reward: 5, penalty: -10, penaltyProbability: 0.6 },
 ] as const;
 
-export const DECK_SIZE = 40;
-export const TOTAL_TURNS = 200;
-export const SHORT_TOTAL_TURNS = 100;
-export const SHORT_BLOCKS = 2;
-export const BLOCK_SIZE = 40;
+export type GameVersionId = 'standard' | 'extended' | 'short';
+
+export type GameVersion = {
+  id: GameVersionId;
+  labelKey: string;
+  deckSizePerStack: number;
+  totalTurns: number;
+};
+
+export const STACK_COUNT = 5;
+
+export const GAME_VERSIONS: readonly GameVersion[] = [
+  { id: 'standard', labelKey: 'game.version.standard', deckSizePerStack: 18, totalTurns: 50 },
+  { id: 'extended', labelKey: 'game.version.extended', deckSizePerStack: 40, totalTurns: 200 },
+  { id: 'short', labelKey: 'game.version.short', deckSizePerStack: 40, totalTurns: 100 },
+] as const;
+
+export const DEFAULT_GAME_VERSION: GameVersion = GAME_VERSIONS[0]!;
+
+export function getGameVersion(id: GameVersionId): GameVersion {
+  const version = GAME_VERSIONS.find((v) => v.id === id);
+  if (!version) {
+    throw new Error(`Unknown game version: ${id}`);
+  }
+  return version;
+}
 
 export const ADVANTAGEOUS_STACKS: readonly StackId[] = [1, 2] as const;
 export const DISADVANTAGEOUS_STACKS: readonly StackId[] = [4, 5] as const;
@@ -31,11 +52,7 @@ export type StackCard = {
   penalty: number;
 };
 
-export function buildDeck(
-  stack: StackId,
-  size: number = DECK_SIZE,
-  rng: () => number,
-): StackCard[] {
+export function buildDeck(stack: StackId, size: number, rng: () => number): StackCard[] {
   const contingency = CONTINGENCIES.find((c) => c.stack === stack);
   if (!contingency) {
     throw new Error(`Unknown stack: ${stack}`);

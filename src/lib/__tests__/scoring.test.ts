@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { summarize } from '@/lib/scoring';
+import { cumulativeNet, summarize } from '@/lib/scoring';
 import type { ScoreSummary } from '@/lib/scoring';
 import type { TurnEvent } from '@/lib/gameEngine';
-import { BLOCK_SIZE, TOTAL_TURNS, SHORT_TOTAL_TURNS } from '@/lib/protocol';
 
 function makeEvent(
   turn: number,
@@ -30,7 +29,7 @@ describe('summarize', () => {
       makeEvent(4, 5, -5, true),
       makeEvent(5, 3, 3, false),
     ];
-    const summary: ScoreSummary = summarize(events, 200);
+    const summary: ScoreSummary = summarize(events);
 
     expect(summary.totalNet).toBe(1 + 1 + -2 + -5 + 3);
     expect(summary.penalizations).toBe(2);
@@ -46,6 +45,11 @@ describe('summarize', () => {
     expect(summary.drawsPerStack[5]).toBe(1);
   });
 
+  it('has no learning-curve field (blocks removed from the protocol)', () => {
+    const summary = summarize([makeEvent(1, 1, 1, false)]);
+    expect('learningCurve' in summary).toBe(false);
+  });
+
   it('advantageDisadvantageIndex positive when favoring low stacks', () => {
     const events: TurnEvent[] = [];
     for (let i = 0; i < 10; i++) events.push(makeEvent(i + 1, 1, 1, false));
@@ -53,7 +57,7 @@ describe('summarize', () => {
     for (let i = 0; i < 2; i++) events.push(makeEvent(21 + i, 4, -2, true));
     for (let i = 0; i < 2; i++) events.push(makeEvent(23 + i, 5, -5, true));
 
-    const summary = summarize(events, 200);
+    const summary = summarize(events);
     expect(summary.advantageDisadvantageIndex).toBe(20 - 4);
   });
 
@@ -63,41 +67,12 @@ describe('summarize', () => {
     for (let i = 0; i < 20; i++) events.push(makeEvent(3 + i, 4, -2, true));
     for (let i = 0; i < 20; i++) events.push(makeEvent(23 + i, 5, -5, true));
 
-    const summary = summarize(events, 200);
+    const summary = summarize(events);
     expect(summary.advantageDisadvantageIndex).toBe(2 - 40);
   });
 
-  it('learningCurve length = ceil(totalTurns / BLOCK_SIZE) for 200 turns', () => {
-    const events: TurnEvent[] = [];
-    for (let i = 0; i < TOTAL_TURNS; i++) {
-      events.push(makeEvent(i + 1, 1, 1, false));
-    }
-    const summary = summarize(events, TOTAL_TURNS);
-    expect(summary.learningCurve).toHaveLength(Math.ceil(TOTAL_TURNS / BLOCK_SIZE));
-  });
-
-  it('learningCurve per-block sums are correct', () => {
-    const events: TurnEvent[] = [];
-    for (let i = 0; i < TOTAL_TURNS; i++) {
-      events.push(makeEvent(i + 1, 1, 1, false));
-    }
-    const summary = summarize(events, TOTAL_TURNS);
-    for (const block of summary.learningCurve) {
-      expect(block).toBe(BLOCK_SIZE);
-    }
-  });
-
-  it('learningCurve length = ceil(SHORT_TOTAL_TURNS / BLOCK_SIZE) for short game', () => {
-    const events: TurnEvent[] = [];
-    for (let i = 0; i < SHORT_TOTAL_TURNS; i++) {
-      events.push(makeEvent(i + 1, 1, 1, false));
-    }
-    const summary = summarize(events, SHORT_TOTAL_TURNS);
-    expect(summary.learningCurve).toHaveLength(Math.ceil(SHORT_TOTAL_TURNS / BLOCK_SIZE));
-  });
-
   it('empty events produce zeroed summary', () => {
-    const summary = summarize([], 200);
+    const summary = summarize([]);
     expect(summary.totalNet).toBe(0);
     expect(summary.penalizations).toBe(0);
     expect(summary.advantageDisadvantageIndex).toBe(0);
@@ -105,5 +80,39 @@ describe('summarize', () => {
       expect(summary.perStack[s]).toBe(0);
       expect(summary.drawsPerStack[s]).toBe(0);
     }
+  });
+});
+
+describe('cumulativeNet', () => {
+  it('returns the running total after each turn', () => {
+    const events: TurnEvent[] = [
+      makeEvent(1, 1, 1, false),
+      makeEvent(2, 5, -5, true),
+      makeEvent(3, 3, 3, false),
+      makeEvent(4, 2, 2, false),
+    ];
+    expect(cumulativeNet(events)).toEqual([1, -4, -1, 1]);
+  });
+
+  it('has one point per event', () => {
+    const events: TurnEvent[] = [];
+    for (let i = 0; i < 50; i++) events.push(makeEvent(i + 1, 1, 1, false));
+    const series = cumulativeNet(events);
+    expect(series).toHaveLength(50);
+    expect(series[49]).toBe(50);
+  });
+
+  it('is empty for no events', () => {
+    expect(cumulativeNet([])).toEqual([]);
+  });
+
+  it('final point equals summarize().totalNet', () => {
+    const events: TurnEvent[] = [
+      makeEvent(1, 4, -2, true),
+      makeEvent(2, 4, 4, false),
+      makeEvent(3, 1, 1, false),
+    ];
+    const series = cumulativeNet(events);
+    expect(series[series.length - 1]).toBe(summarize(events).totalNet);
   });
 });

@@ -15,19 +15,20 @@ export function computeTendency(advantageDisadvantageIndex: number): Tendency {
   return 'neutral';
 }
 
-export function computeTrend(learningCurve: number[]): Trend {
-  if (learningCurve.length < 2) return 'stable';
-  const first = learningCurve[0]!;
-  const last = learningCurve[learningCurve.length - 1]!;
-  const diff = last - first;
+export function computeTrend(cumulative: number[]): Trend {
+  if (cumulative.length < 2) return 'stable';
+  const mid = Math.floor(cumulative.length / 2);
+  const firstHalfGain = cumulative[mid - 1]!;
+  const secondHalfGain = cumulative[cumulative.length - 1]! - firstHalfGain;
+  const diff = secondHalfGain - firstHalfGain;
   if (diff > 0) return 'improving';
   if (diff < 0) return 'declining';
   return 'stable';
 }
 
-export function interpret(summary: ScoreSummary): Interpretation {
+export function interpret(summary: ScoreSummary, cumulative: number[]): Interpretation {
   const tendency = computeTendency(summary.advantageDisadvantageIndex);
-  const trend = computeTrend(summary.learningCurve);
+  const trend = computeTrend(cumulative);
   return {
     tendency,
     trend,

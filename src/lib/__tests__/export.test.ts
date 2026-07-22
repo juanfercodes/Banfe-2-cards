@@ -14,7 +14,6 @@ function buildRows(): SessionExportRow[] {
       penalizations: 3,
       advantageDisadvantageIndex: 12,
       perStack: { 1: 10, 2: -5, 3: 20, 4: -8, 5: 15 },
-      learningCurve: [10, 20, 30],
     },
   ];
 }
@@ -30,7 +29,7 @@ describe('exportSessions', () => {
     expect(blob.type).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   });
 
-  it('writes Spanish headers and expands perStack + learningCurve', async () => {
+  it('writes Spanish headers and expands perStack', async () => {
     const blob = exportSessions(buildRows(), 'es');
     const workbook = await readWorkbook(blob);
     const sheet = workbook.Sheets[workbook.SheetNames[0]!]!;
@@ -49,7 +48,6 @@ describe('exportSessions', () => {
       'Mazo 3',
       'Mazo 4',
       'Mazo 5',
-      'Curva de aprendizaje',
     ]);
 
     const dataRow = rows[1] as unknown[];
@@ -59,7 +57,7 @@ describe('exportSessions', () => {
     expect(dataRow[8]).toBe(20);
     expect(dataRow[9]).toBe(-8);
     expect(dataRow[10]).toBe(15);
-    expect(dataRow[11]).toBe('10, 20, 30');
+    expect(dataRow).toHaveLength(11);
   });
 
   it('writes English headers for the en locale', async () => {
@@ -80,7 +78,6 @@ describe('exportSessions', () => {
       'Stack 3',
       'Stack 4',
       'Stack 5',
-      'Learning curve',
     ]);
   });
 

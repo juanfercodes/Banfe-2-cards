@@ -1,4 +1,4 @@
-import { type StackCard, type StackId, DECK_SIZE, TOTAL_TURNS, buildDeck } from '@/lib/protocol';
+import { type StackCard, type StackId, DEFAULT_GAME_VERSION, buildDeck } from '@/lib/protocol';
 import { createRng } from '@/lib/rng';
 
 export type { StackId } from '@/lib/protocol';
@@ -16,6 +16,7 @@ export type TurnEvent = {
 export type GameState = {
   turn: number;
   totalTurns: number;
+  deckSizePerStack: number;
   runningTotal: number;
   decks: Record<StackId, StackCard[]>;
   events: TurnEvent[];
@@ -28,22 +29,25 @@ const ALL_STACKS: readonly StackId[] = [1, 2, 3, 4, 5] as const;
 export function createGame(
   opts: {
     totalTurns?: number;
+    deckSizePerStack?: number;
     seed?: number;
     rng?: () => number;
   } = {},
 ): GameState {
   const seed = opts.seed ?? 0;
   const rng = opts.rng ?? createRng(seed);
-  const totalTurns = opts.totalTurns ?? TOTAL_TURNS;
+  const totalTurns = opts.totalTurns ?? DEFAULT_GAME_VERSION.totalTurns;
+  const deckSizePerStack = opts.deckSizePerStack ?? DEFAULT_GAME_VERSION.deckSizePerStack;
 
   const decks = {} as Record<StackId, StackCard[]>;
   for (const stack of ALL_STACKS) {
-    decks[stack] = buildDeck(stack, DECK_SIZE, rng);
+    decks[stack] = buildDeck(stack, deckSizePerStack, rng);
   }
 
   return {
     turn: 0,
     totalTurns,
+    deckSizePerStack,
     runningTotal: 0,
     decks,
     events: [],
@@ -97,6 +101,7 @@ export function draw(state: GameState, stack: StackId): GameState {
   return {
     turn: newTurn,
     totalTurns: state.totalTurns,
+    deckSizePerStack: state.deckSizePerStack,
     runningTotal: newRunningTotal,
     decks: newDecks,
     events: [...state.events, event],

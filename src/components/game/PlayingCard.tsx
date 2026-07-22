@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import { ADVANTAGEOUS_STACKS, DISADVANTAGEOUS_STACKS, type StackId } from '@/lib/protocol';
+import type { StackId } from '@/lib/protocol';
 import { cn } from '../ui/cn';
 
 export interface PlayingCardProps {
@@ -16,16 +16,6 @@ export interface PlayingCardProps {
 
 const faceBase =
   'absolute inset-0 flex flex-col items-center justify-center rounded-xl border border-subtle shadow-md';
-
-function stackTint(stack: StackId): string {
-  if (ADVANTAGEOUS_STACKS.includes(stack)) {
-    return 'bg-emerald-500/10 ring-1 ring-inset ring-emerald-500/30';
-  }
-  if (DISADVANTAGEOUS_STACKS.includes(stack)) {
-    return 'bg-red-500/10 ring-1 ring-inset ring-red-500/30';
-  }
-  return 'bg-surface';
-}
 
 function CardBack({ label }: { label: string }) {
   return (
@@ -61,7 +51,7 @@ function CardFront({
   return (
     <div
       data-testid="card-front"
-      className={cn(faceBase, 'gap-1 bg-surface text-default', stackTint(stack))}
+      className={cn(faceBase, 'gap-1 bg-surface text-default ring-1 ring-inset ring-subtle')}
     >
       <span data-testid="card-reward" className="text-3xl font-bold tabular-nums text-default">
         +{reward}
@@ -97,7 +87,7 @@ function CardFront({
           initial={{ opacity: 1, y: 0 }}
           animate={{ opacity: 0, y: -36 }}
           transition={{ duration: 1, delay: 0.4, ease: 'easeOut' }}
-          className="pointer-events-none absolute -top-2 text-lg font-bold text-emerald-500"
+          className="pointer-events-none absolute -top-2 text-lg font-bold text-accent"
         >
           +{reward}
         </motion.span>

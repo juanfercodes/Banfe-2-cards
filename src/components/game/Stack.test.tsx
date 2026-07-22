@@ -9,10 +9,10 @@ import { renderWithProviders } from '../../test/render';
 const baseProps = {
   stack: 2 as const,
   reward: 2,
-  remaining: 40,
+  remaining: 18,
   canDraw: true,
   onDraw: vi.fn(),
-  lastEvent: null,
+  events: [] as TurnEvent[],
 };
 
 describe('<Stack />', () => {
@@ -20,10 +20,16 @@ describe('<Stack />', () => {
     renderWithProviders(<Stack {...baseProps} onDraw={vi.fn()} />, { withRouter: false });
     expect(
       screen.getByRole('button', {
-        name: 'Mazo 2: recompensa 2 puntos, quedan 40 cartas',
+        name: 'Mazo 2: recompensa 2 puntos, quedan 18 cartas',
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText('40 cartas')).toBeInTheDocument();
+    expect(screen.getByText('18 cartas')).toBeInTheDocument();
+  });
+
+  it('shows the reward magnitude on the deck back', () => {
+    renderWithProviders(<Stack {...baseProps} onDraw={vi.fn()} />, { withRouter: false });
+    const button = screen.getByRole('button', { name: /Mazo 2/ });
+    expect(button.textContent).toContain('+2');
   });
 
   it('click draws a card', async () => {
@@ -67,25 +73,28 @@ describe('<Stack />', () => {
     expect(onDraw).toHaveBeenNthCalledWith(2, 2);
   });
 
-  it('reveals the drawn card when lastEvent is provided', () => {
-    const lastEvent: TurnEvent = {
-      turn: 5,
-      stack: 2,
-      reward: 2,
-      hadPenalty: true,
-      penalty: -1,
-      net: 1,
-      runningTotal: 7,
-    };
-    renderWithProviders(<Stack {...baseProps} remaining={35} lastEvent={lastEvent} />, {
+  it('shows the last drawn card face-up on the discard pile', () => {
+    const events: TurnEvent[] = [
+      {
+        turn: 5,
+        stack: 2,
+        reward: 2,
+        hadPenalty: true,
+        penalty: -1,
+        net: 1,
+        runningTotal: 7,
+      },
+    ];
+    renderWithProviders(<Stack {...baseProps} remaining={17} events={events} />, {
       withRouter: false,
     });
 
     expect(screen.getByTestId('card-reward')).toHaveTextContent('+2');
     expect(screen.getByTestId('penalty-chip')).toHaveTextContent('-1');
+    expect(screen.getByTestId('discard-pile-2')).toBeInTheDocument();
   });
 
-  it('shows the empty state when the pile is exhausted', () => {
+  it('shows the empty state when the deck is exhausted', () => {
     renderWithProviders(<Stack {...baseProps} remaining={0} canDraw={false} onDraw={vi.fn()} />, {
       withRouter: false,
     });

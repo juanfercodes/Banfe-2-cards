@@ -72,7 +72,6 @@ function sampleSummary(): ScoreSummary {
     totalNet: 42,
     perStack,
     penalizations: 7,
-    learningCurve: [5, 10, 8, 12, 7],
     advantageDisadvantageIndex: 3,
     drawsPerStack,
   };
@@ -145,7 +144,6 @@ describe('dataAccess: typed CRUD round-trips', () => {
     expect(saved.perStack[1]).toBe(10);
     expect(saved.perStack[5]).toBe(-1);
     expect(saved.penalizations).toBe(7);
-    expect(saved.learningCurve).toEqual([5, 10, 8, 12, 7]);
     expect(saved.advDisadvIndex).toBe(3);
     expect(saved.rawEvents).toHaveLength(3);
     expect(saved.rawEvents[0]?.stack).toBe(1);

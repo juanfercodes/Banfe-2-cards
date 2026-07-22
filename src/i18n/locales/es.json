@@ -99,8 +99,19 @@
   "game": {
     "title": "Sesión de juego",
     "patientLabel": "Paciente: {{id}}",
-    "shortModeTitle": "Primera sesión: versión corta",
-    "shortModeBody": "Esta sesión usa la versión corta del juego ({{turns}} turnos) para facilitar el inicio.",
+    "version": {
+      "title": "Versión de la sesión",
+      "standard": "Estándar",
+      "extended": "Extendida",
+      "short": "Corta",
+      "detail": "{{cards}} cartas · {{turns}} turnos",
+      "default": "Predeterminada",
+      "start": "Comenzar sesión"
+    },
+    "pileSummary_one": "Mazo {{stack}}: {{count}} carta robada, {{penalties}} con penalización",
+    "pileSummary_other": "Mazo {{stack}}: {{count}} cartas robadas, {{penalties}} con penalización",
+    "pileEmpty": "Monte vacío",
+    "pilePenaltyBadge": "⚠ {{count}}",
     "stackName": "Mazo {{stack}}",
     "stackRewardLabel": "Recompensa +{{reward}}",
     "stackAria": "Mazo {{stack}}: recompensa {{reward}} puntos, quedan {{remaining}} cartas",
@@ -130,14 +141,11 @@
     "totalDraws": "Cartas tomadas",
     "perStack": "Desglose por mazo",
     "perStackBar": "Mazo {{stack}}: neto {{net}}, recompensa +{{reward}}, penalización {{penalty}}",
-    "learningCurve": "Curva de aprendizaje",
+    "cumulativeNet": "Puntaje acumulado",
+    "cumulativeNetTurn": "Turno",
+    "cumulativeNetTotal": "Acumulado",
+    "cumulativeNetSummary": "Evolución del puntaje en {{turns}} turnos: final {{final}}, mínimo {{min}}, máximo {{max}}.",
     "drawsPerStack": "Cartas tomadas por mazo",
-    "block": "Bloque {{n}}",
-    "trend": {
-      "improving": "Mejorando",
-      "declining": "Empeorando",
-      "stable": "Estable"
-    },
     "interpretation": {
       "advantageous_improving": "El paciente muestra preferencia por mazos ventajosos y una mejora progresiva a lo largo de la sesión, sugiriendo un buen aprendizaje de la modulación del riesgo.",
       "advantageous_stable": "El paciente muestra preferencia por mazos ventajosos de forma consistente durante toda la sesión.",
@@ -171,11 +179,6 @@
   },
   "route": {
     "placeholder": "Página en construcción"
-  },
-  "onboarding": {
-    "firstSessionTitle": "Primera sesión: introducción suave",
-    "firstSessionBody": "Esta primera sesión es más corta para que el paciente se familiarice con el juego.",
-    "shortModeBadge": "Sesión corta"
   },
   "export": {
     "sheetName": "Sesiones",

@@ -15,6 +15,23 @@ describe('useGame', () => {
     expect(result.current.isFinished).toBe(false);
   });
 
+  it('defaults to the standard 90/50 version', () => {
+    const { result } = renderHook(() => useGame({ seed: 42 }));
+
+    expect(result.current.state.totalTurns).toBe(50);
+    expect(result.current.state.deckSizePerStack).toBe(18);
+    expect(result.current.remaining(1)).toBe(18);
+  });
+
+  it('builds decks with the supplied per-stack size', () => {
+    const { result } = renderHook(() =>
+      useGame({ totalTurns: 200, deckSizePerStack: 40, seed: 42 }),
+    );
+
+    expect(result.current.remaining(3)).toBe(40);
+    expect(result.current.state.deckSizePerStack).toBe(40);
+  });
+
   it('draw updates running total and events immutably', () => {
     const { result } = renderHook(() => useGame({ totalTurns: 10, seed: 42 }));
     const before = result.current.state;
@@ -100,7 +117,7 @@ describe('useGame', () => {
     expect(a.result.current.state.runningTotal).toBe(b.result.current.state.runningTotal);
   });
 
-  it('summary matches summarize(events, totalTurns) after draws', () => {
+  it('summary matches summarize(events) after draws', () => {
     const { result } = renderHook(() => useGame({ totalTurns: 10, seed: 42 }));
 
     act(() => {
@@ -109,22 +126,22 @@ describe('useGame', () => {
       result.current.draw(1);
     });
 
-    const expected = summarize(result.current.state.events, result.current.state.totalTurns);
+    const expected = summarize(result.current.state.events);
     expect(result.current.summary).toEqual(expected);
     expect(result.current.summary.drawsPerStack[5]).toBe(2);
     expect(result.current.summary.drawsPerStack[1]).toBe(1);
   });
 
   it('canDraw and remaining reflect the current decks', () => {
-    const { result } = renderHook(() => useGame({ totalTurns: 200, seed: 42 }));
+    const { result } = renderHook(() => useGame({ seed: 42 }));
 
     expect(result.current.canDraw(3)).toBe(true);
-    expect(result.current.remaining(3)).toBe(40);
+    expect(result.current.remaining(3)).toBe(18);
 
     act(() => {
       result.current.draw(3);
     });
 
-    expect(result.current.remaining(3)).toBe(39);
+    expect(result.current.remaining(3)).toBe(17);
   });
 });

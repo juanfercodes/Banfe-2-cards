@@ -99,8 +99,19 @@
   "game": {
     "title": "Game session",
     "patientLabel": "Patient: {{id}}",
-    "shortModeTitle": "First session: short version",
-    "shortModeBody": "This session uses the short version of the game ({{turns}} turns) to ease the start.",
+    "version": {
+      "title": "Session version",
+      "standard": "Standard",
+      "extended": "Extended",
+      "short": "Short",
+      "detail": "{{cards}} cards · {{turns}} turns",
+      "default": "Default",
+      "start": "Start session"
+    },
+    "pileSummary_one": "Stack {{stack}}: {{count}} card drawn, {{penalties}} with penalty",
+    "pileSummary_other": "Stack {{stack}}: {{count}} cards drawn, {{penalties}} with penalty",
+    "pileEmpty": "Empty pile",
+    "pilePenaltyBadge": "⚠ {{count}}",
     "stackName": "Stack {{stack}}",
     "stackRewardLabel": "Reward +{{reward}}",
     "stackAria": "Stack {{stack}}: reward {{reward}} points, {{remaining}} cards remaining",
@@ -130,14 +141,11 @@
     "totalDraws": "Cards drawn",
     "perStack": "Per-stack breakdown",
     "perStackBar": "Stack {{stack}}: net {{net}}, reward +{{reward}}, penalty {{penalty}}",
-    "learningCurve": "Learning curve",
+    "cumulativeNet": "Cumulative score",
+    "cumulativeNetTurn": "Turn",
+    "cumulativeNetTotal": "Cumulative",
+    "cumulativeNetSummary": "Score over {{turns}} turns: final {{final}}, minimum {{min}}, maximum {{max}}.",
     "drawsPerStack": "Draws per stack",
-    "block": "Block {{n}}",
-    "trend": {
-      "improving": "Improving",
-      "declining": "Declining",
-      "stable": "Stable"
-    },
     "interpretation": {
       "advantageous_improving": "The patient shows a preference for advantageous stacks with progressive improvement across the session, suggesting good learning of risk modulation.",
       "advantageous_stable": "The patient shows a consistent preference for advantageous stacks throughout the session.",
@@ -171,11 +179,6 @@
   },
   "route": {
     "placeholder": "Page under construction"
-  },
-  "onboarding": {
-    "firstSessionTitle": "First session: gentle introduction",
-    "firstSessionBody": "This first session is shorter so the patient can get familiar with the game.",
-    "shortModeBadge": "Short session"
   },
   "export": {
     "sheetName": "Sessions",

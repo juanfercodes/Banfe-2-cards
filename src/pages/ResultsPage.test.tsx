@@ -41,7 +41,6 @@ const summary = {
   totalNet: 42,
   perStack: { 1: 20, 2: 10, 3: 0, 4: -5, 5: -15 },
   penalizations: 7,
-  learningCurve: [-5, 0, 10],
   advantageDisadvantageIndex: 12,
   drawsPerStack: { 1: 20, 2: 20, 3: 20, 4: 20, 5: 20 },
 };
@@ -72,6 +71,8 @@ describe('<ResultsPage />', () => {
     expect(screen.getByText('7')).toBeInTheDocument();
     expect(screen.getByText('100')).toBeInTheDocument();
     expect(screen.getByText('P-001', { exact: false })).toBeInTheDocument();
+    expect(screen.getByTestId('cumulative-net-table')).toBeInTheDocument();
+    expect(screen.queryByTestId('learning-curve-table')).not.toBeInTheDocument();
   });
 
   it('reconstructs the summary from the DB when router state is missing', async () => {
@@ -84,7 +85,6 @@ describe('<ResultsPage />', () => {
       totalNet: 33,
       perStack: { 1: 15, 2: 10, 3: 0, 4: 3, 5: 5 },
       penalizations: 4,
-      learningCurve: [10, 23],
       advDisadvIndex: 6,
       rawEvents: [
         { turn: 1, stack: 1, reward: 1, hadPenalty: false, penalty: 0, net: 1, runningTotal: 1 },

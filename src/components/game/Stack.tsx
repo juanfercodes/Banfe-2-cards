@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import type { TurnEvent } from '@/lib/gameEngine';
 import type { StackId } from '@/lib/protocol';
-import { PlayingCard } from './PlayingCard';
+import { DiscardPile } from './DiscardPile';
 import { cn } from '../ui/cn';
 
 export interface StackProps {
@@ -13,26 +13,44 @@ export interface StackProps {
   remaining: number;
   canDraw: boolean;
   onDraw: (stack: StackId) => void;
-  lastEvent?: TurnEvent | null | undefined;
+  events: TurnEvent[];
 }
 
-const pileCard = 'absolute inset-0 rounded-xl border border-subtle shadow-sm';
+const pileCard = 'absolute inset-0 rounded-xl border border-subtle';
 const pileBack = 'bg-gradient-to-br from-accent to-accent/70';
 
-export function Stack({ stack, reward, remaining, canDraw, onDraw, lastEvent = null }: StackProps) {
+const DECK_SHADOW: Record<number, string> = {
+  1: 'shadow-sm',
+  2: 'shadow',
+  3: 'shadow-md',
+  4: 'shadow-lg',
+  5: 'shadow-xl shadow-accent/30',
+};
+
+export function Stack({ stack, reward, remaining, canDraw, onDraw, events }: StackProps) {
   const { t } = useTranslation();
   const reducedMotion = usePrefersReducedMotion();
 
+  const shadow = DECK_SHADOW[reward] ?? 'shadow';
+
   const topCard = (
-    <span aria-hidden="true" className={cn(pileCard, pileBack, 'flex items-center justify-center')}>
-      <span className="flex h-[calc(100%-12px)] w-[calc(100%-12px)] items-center justify-center rounded-lg border-2 border-white/40 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25)_1px,transparent_1px)] bg-[length:10px_10px]">
-        <span className="text-lg font-black text-white/80">B2</span>
+    <span
+      aria-hidden="true"
+      className={cn(pileCard, pileBack, shadow, 'flex items-center justify-center')}
+    >
+      <span className="flex h-[calc(100%-12px)] w-[calc(100%-12px)] flex-col items-center justify-center gap-1 rounded-lg border-2 border-white/40 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25)_1px,transparent_1px)] bg-[length:10px_10px]">
+        <span className="rounded-md bg-white/15 px-2 py-0.5 text-xl font-black tabular-nums text-white drop-shadow">
+          +{reward}
+        </span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+          {t('game.stackName', { stack })}
+        </span>
       </span>
     </span>
   );
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-4">
       <button
         type="button"
         disabled={!canDraw}
@@ -40,20 +58,20 @@ export function Stack({ stack, reward, remaining, canDraw, onDraw, lastEvent = n
         aria-label={t('game.stackAria', { stack, reward, remaining })}
         className={cn(
           'relative h-36 w-24 rounded-xl transition-transform focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg',
-          canDraw && !reducedMotion && 'hover:-translate-y-1',
-          !canDraw && 'cursor-not-allowed opacity-60',
+          canDraw && !reducedMotion && 'hover:-translate-y-1.5 active:translate-y-0',
+          !canDraw && 'cursor-not-allowed',
         )}
       >
         {remaining > 2 && (
           <span
             aria-hidden="true"
-            className={cn(pileCard, pileBack, 'left-1.5 top-1.5 opacity-60')}
+            className={cn(pileCard, pileBack, 'left-1.5 top-1.5 opacity-60 shadow-sm')}
           />
         )}
         {remaining > 1 && (
           <span
             aria-hidden="true"
-            className={cn(pileCard, pileBack, 'left-0.5 top-0.5 opacity-80')}
+            className={cn(pileCard, pileBack, 'left-0.5 top-0.5 opacity-80 shadow-sm')}
           />
         )}
         {remaining > 0 ? (
@@ -71,7 +89,7 @@ export function Stack({ stack, reward, remaining, canDraw, onDraw, lastEvent = n
             </motion.span>
           )
         ) : (
-          <span className="absolute inset-0 flex items-center justify-center rounded-xl border-2 border-dashed border-subtle text-xs font-medium text-muted">
+          <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-subtle bg-surface/40 text-xs font-semibold uppercase tracking-wide text-muted">
             {t('game.emptyStack')}
           </span>
         )}
@@ -80,28 +98,14 @@ export function Stack({ stack, reward, remaining, canDraw, onDraw, lastEvent = n
         </span>
       </button>
 
-      <div
-        className="flex h-36 w-24 items-center justify-center"
-        data-testid={`reveal-slot-${stack}`}
-      >
-        {lastEvent && (
-          <div key={lastEvent.turn}>
-            <PlayingCard
-              stack={stack}
-              reward={lastEvent.reward}
-              hadPenalty={lastEvent.hadPenalty}
-              penalty={lastEvent.penalty}
-              revealed
-              flipped
-            />
-          </div>
-        )}
-      </div>
+      <DiscardPile stack={stack} events={events} />
 
       <div className="text-center">
-        <div className="text-sm font-semibold text-default">{t('game.stackName', { stack })}</div>
+        <div className="text-sm font-bold text-default">{t('game.stackName', { stack })}</div>
         <div className="text-xs text-muted">
-          <span>{t('game.stackRewardLabel', { reward })}</span>
+          <span className="font-semibold tabular-nums text-default/80">
+            {t('game.stackRewardLabel', { reward })}
+          </span>
           {' · '}
           <span>{t('game.remainingCount', { count: remaining })}</span>
         </div>

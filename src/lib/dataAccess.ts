@@ -24,7 +24,6 @@ export interface Session {
   totalNet: number;
   perStack: Record<StackId, number>;
   penalizations: number;
-  learningCurve: number[];
   advDisadvIndex: number;
   rawEvents: TurnEvent[];
 }
@@ -107,7 +106,6 @@ export function mapSession(row: SessionRow): Session {
     totalNet: row.total_net,
     perStack: mapPerStack(row.per_stack),
     penalizations: row.penalizations,
-    learningCurve: Array.isArray(row.learning_curve) ? row.learning_curve : [],
     advDisadvIndex: row.adv_disadv_index,
     rawEvents: Array.isArray(row.raw_events) ? row.raw_events : [],
   };
@@ -131,7 +129,6 @@ export function sessionToScoreSummary(session: Session): ScoreSummary {
     totalNet: session.totalNet,
     perStack,
     penalizations: session.penalizations,
-    learningCurve: session.learningCurve,
     advantageDisadvantageIndex: session.advDisadvIndex,
     drawsPerStack,
   };
@@ -174,7 +171,7 @@ export async function saveSession(
     total_net: input.summary.totalNet,
     per_stack: input.summary.perStack,
     penalizations: input.summary.penalizations,
-    learning_curve: input.summary.learningCurve,
+    learning_curve: [],
     adv_disadv_index: input.summary.advantageDisadvantageIndex,
     raw_events: input.events,
   };

@@ -1,7 +1,8 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { TurnEvent } from '@/lib/gameEngine';
-import { CONTINGENCIES, SHORT_TOTAL_TURNS, type StackId } from '@/lib/protocol';
+import { CONTINGENCIES, type StackId } from '@/lib/protocol';
 import type { ScoreSummary } from '@/lib/scoring';
 import { useGameContext } from './GameContext';
 import { ScoreBar } from './ScoreBar';
@@ -15,12 +16,18 @@ export interface GameBoardProps {
   subtitle?: string | undefined;
 }
 
+const ALL_STACKS: readonly StackId[] = [1, 2, 3, 4, 5] as const;
+
 export function GameBoard({ onFinish, subtitle }: GameBoardProps) {
   const { t } = useTranslation();
   const { state, summary, draw, reset, canDraw, remaining, isFinished, seed } = useGameContext();
 
-  const lastEvent = state.events[state.events.length - 1] ?? null;
-  const isShort = state.totalTurns === SHORT_TOTAL_TURNS;
+  const eventsByStack = useMemo(() => {
+    const map = {} as Record<StackId, TurnEvent[]>;
+    for (const s of ALL_STACKS) map[s] = [];
+    for (const ev of state.events) map[ev.stack].push(ev);
+    return map;
+  }, [state.events]);
 
   return (
     <>
@@ -33,7 +40,7 @@ export function GameBoard({ onFinish, subtitle }: GameBoardProps) {
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-default">{t('game.title')}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-default">{t('game.title')}</h1>
           {subtitle && <p className="text-sm text-muted">{subtitle}</p>}
         </div>
         <Button variant="secondary" size="sm" onClick={() => reset()}>
@@ -41,27 +48,20 @@ export function GameBoard({ onFinish, subtitle }: GameBoardProps) {
         </Button>
       </div>
 
-      {isShort && (
-        <Card padding="sm" className="mt-4 border-accent/40 bg-accent/5" role="note">
-          <p className="font-semibold text-default">{t('game.shortModeTitle')}</p>
-          <p className="text-sm text-muted">
-            {t('game.shortModeBody', { turns: state.totalTurns })}
-          </p>
-        </Card>
-      )}
-
-      <div className="mt-8 grid grid-cols-2 justify-items-center gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-5">
-        {CONTINGENCIES.map(({ stack, reward }) => (
-          <Stack
-            key={stack}
-            stack={stack}
-            reward={reward}
-            remaining={remaining(stack)}
-            canDraw={canDraw(stack)}
-            onDraw={(s: StackId) => draw(s)}
-            lastEvent={lastEvent?.stack === stack ? lastEvent : null}
-          />
-        ))}
+      <div className="mt-6 rounded-3xl border border-subtle bg-gradient-to-b from-surface via-surface to-accent/5 p-4 shadow-inner sm:p-8">
+        <div className="grid grid-cols-2 justify-items-center gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-5">
+          {CONTINGENCIES.map(({ stack, reward }) => (
+            <Stack
+              key={stack}
+              stack={stack}
+              reward={reward}
+              remaining={remaining(stack)}
+              canDraw={canDraw(stack)}
+              onDraw={(s: StackId) => draw(s)}
+              events={eventsByStack[stack]}
+            />
+          ))}
+        </div>
       </div>
 
       {isFinished && (

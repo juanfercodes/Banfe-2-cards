@@ -1,18 +1,17 @@
 import type { TurnEvent, StackId } from '@/lib/gameEngine';
-import { ADVANTAGEOUS_STACKS, BLOCK_SIZE, DISADVANTAGEOUS_STACKS } from '@/lib/protocol';
+import { ADVANTAGEOUS_STACKS, DISADVANTAGEOUS_STACKS } from '@/lib/protocol';
 
 export type ScoreSummary = {
   totalNet: number;
   perStack: Record<StackId, number>;
   penalizations: number;
-  learningCurve: number[];
   advantageDisadvantageIndex: number;
   drawsPerStack: Record<StackId, number>;
 };
 
 const ALL_STACKS: readonly StackId[] = [1, 2, 3, 4, 5] as const;
 
-export function summarize(events: TurnEvent[], totalTurns: number): ScoreSummary {
+export function summarize(events: TurnEvent[]): ScoreSummary {
   let totalNet = 0;
   let penalizations = 0;
 
@@ -30,15 +29,6 @@ export function summarize(events: TurnEvent[], totalTurns: number): ScoreSummary
     if (ev.hadPenalty) penalizations++;
   }
 
-  const blockCount = Math.ceil(totalTurns / BLOCK_SIZE);
-  const learningCurve: number[] = Array.from({ length: blockCount }, () => 0);
-  for (const ev of events) {
-    const blockIdx = Math.floor((ev.turn - 1) / BLOCK_SIZE);
-    if (blockIdx >= 0 && blockIdx < blockCount) {
-      learningCurve[blockIdx]! += ev.net;
-    }
-  }
-
   let advDraws = 0;
   let disDraws = 0;
   for (const s of ADVANTAGEOUS_STACKS) {
@@ -52,8 +42,17 @@ export function summarize(events: TurnEvent[], totalTurns: number): ScoreSummary
     totalNet,
     perStack,
     penalizations,
-    learningCurve,
     advantageDisadvantageIndex: advDraws - disDraws,
     drawsPerStack,
   };
+}
+
+export function cumulativeNet(events: TurnEvent[]): number[] {
+  const series: number[] = [];
+  let total = 0;
+  for (const ev of events) {
+    total += ev.net;
+    series.push(total);
+  }
+  return series;
 }

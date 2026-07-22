@@ -1,3 +1,5 @@
+export { DiscardPile } from './DiscardPile';
+export type { DiscardPileProps } from './DiscardPile';
 export { GameBoard } from './GameBoard';
 export type { GameBoardProps, GameFinishHandler } from './GameBoard';
 export { GameContext, useGameContext } from './GameContext';
@@ -9,3 +11,5 @@ export { ScoreBar } from './ScoreBar';
 export type { ScoreBarProps } from './ScoreBar';
 export { Stack } from './Stack';
 export type { StackProps } from './Stack';
+export { VersionSelector } from './VersionSelector';
+export type { VersionSelectorProps } from './VersionSelector';

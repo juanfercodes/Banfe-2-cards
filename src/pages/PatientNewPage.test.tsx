@@ -57,7 +57,7 @@ describe('<PatientNewPage />', () => {
     expect(createPatientMock).not.toHaveBeenCalled();
   });
 
-  it('navigates to /play/:id with the short flag on success', async () => {
+  it('navigates to /play/:id on success', async () => {
     createPatientMock.mockResolvedValue({
       id: 'patient-1',
       clinicianId: 'c-1',
@@ -70,7 +70,7 @@ describe('<PatientNewPage />', () => {
     await user.type(screen.getByLabelText(/código del paciente|patient code/i), 'PAC-001');
     await user.click(screen.getByRole('button', { name: /crear paciente|create patient/i }));
 
-    expect(await screen.findByTestId('location')).toHaveTextContent('/play/patient-1?short=1');
+    expect(await screen.findByTestId('location')).toHaveTextContent('/play/patient-1');
     expect(createPatientMock).toHaveBeenCalledWith('PAC-001');
   });
 

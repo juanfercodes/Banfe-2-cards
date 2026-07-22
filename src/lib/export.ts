@@ -13,7 +13,6 @@ export interface SessionExportRow {
   penalizations: number;
   advantageDisadvantageIndex: number;
   perStack: Record<StackId, number>;
-  learningCurve: number[];
 }
 
 const STACK_IDS: readonly StackId[] = [1, 2, 3, 4, 5] as const;
@@ -28,7 +27,6 @@ const HEADERS: Record<
     index: string;
     duration: string;
     stack: (id: StackId) => string;
-    learningCurve: string;
   }
 > = {
   es: {
@@ -39,7 +37,6 @@ const HEADERS: Record<
     index: 'Índice ventaja/desventaja',
     duration: 'Duración',
     stack: (id) => `Mazo ${id}`,
-    learningCurve: 'Curva de aprendizaje',
   },
   en: {
     patientCode: 'Patient',
@@ -49,7 +46,6 @@ const HEADERS: Record<
     index: 'Advantage/disadvantage index',
     duration: 'Duration',
     stack: (id) => `Stack ${id}`,
-    learningCurve: 'Learning curve',
   },
 };
 
@@ -85,7 +81,6 @@ export function exportSessions(rows: SessionExportRow[], locale: ExportLocale = 
     headers.index,
     headers.duration,
     ...STACK_IDS.map((id) => headers.stack(id)),
-    headers.learningCurve,
   ];
 
   const dataRows = rows.map((row) => [
@@ -96,7 +91,6 @@ export function exportSessions(rows: SessionExportRow[], locale: ExportLocale = 
     numberFormatter.format(row.advantageDisadvantageIndex),
     formatDuration(row, locale, numberFormatter),
     ...STACK_IDS.map((id) => row.perStack[id] ?? 0),
-    row.learningCurve.join(', '),
   ]);
 
   const worksheet = XLSX.utils.aoa_to_sheet([headerRow, ...dataRows]);

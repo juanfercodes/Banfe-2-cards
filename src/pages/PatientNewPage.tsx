@@ -46,7 +46,7 @@ export default function PatientNewPage() {
     setSubmitting(true);
     try {
       const patient = await createPatient(code.trim());
-      void navigate(`/play/${patient.id}?short=1`);
+      void navigate(`/play/${patient.id}`);
     } catch (err) {
       if (err instanceof PatientConflictError) {
         setConflictCode(err.code);

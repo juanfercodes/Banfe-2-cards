@@ -77,7 +77,7 @@ describe('mapSession', () => {
     expect(session.perStack[1]).toBe(10);
     expect(session.perStack[5]).toBe(-1);
     expect(session.penalizations).toBe(7);
-    expect(session.learningCurve).toEqual([5, 10, 8, 12, 7]);
+    expect('learningCurve' in session).toBe(false);
     expect(session.advDisadvIndex).toBe(3);
     expect(session.rawEvents).toHaveLength(1);
     expect(session.rawEvents[0]?.stack).toBe(1);
@@ -100,7 +100,6 @@ describe('mapSession', () => {
     const session = mapSession(row);
     expect(session.endedAt).toBeNull();
     expect(session.perStack).toEqual({});
-    expect(session.learningCurve).toEqual([]);
     expect(session.rawEvents).toEqual([]);
   });
 });
@@ -116,7 +115,6 @@ describe('sessionToScoreSummary', () => {
       totalNet: 42,
       perStack: { 1: 10, 2: 20, 3: 5, 4: 8, 5: -1 },
       penalizations: 7,
-      learningCurve: [5, 10, 8, 12, 7],
       advDisadvIndex: 3,
       rawEvents: [
         { turn: 1, stack: 1, reward: 1, hadPenalty: false, penalty: 0, net: 1, runningTotal: 1 },
@@ -132,7 +130,6 @@ describe('sessionToScoreSummary', () => {
     expect(summary.totalNet).toBe(42);
     expect(summary.penalizations).toBe(7);
     expect(summary.advantageDisadvantageIndex).toBe(3);
-    expect(summary.learningCurve).toEqual([5, 10, 8, 12, 7]);
     expect(summary.perStack).toEqual({ 1: 10, 2: 20, 3: 5, 4: 8, 5: -1 });
   });
 

@@ -34,7 +34,6 @@ function toExportRow(row: HistoryRow): SessionExportRow {
     penalizations: row.session.penalizations,
     advantageDisadvantageIndex: row.session.advDisadvIndex,
     perStack: row.session.perStack,
-    learningCurve: row.session.learningCurve,
   };
 }
 

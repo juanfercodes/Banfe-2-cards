@@ -8,11 +8,12 @@ import {
   draw as engineDraw,
   remaining as engineRemaining,
 } from '@/lib/gameEngine';
-import { TOTAL_TURNS } from '@/lib/protocol';
+import { DEFAULT_GAME_VERSION } from '@/lib/protocol';
 import { type ScoreSummary, summarize } from '@/lib/scoring';
 
 export interface UseGameOptions {
   totalTurns?: number | undefined;
+  deckSizePerStack?: number | undefined;
   seed?: number | undefined;
 }
 
@@ -32,16 +33,17 @@ function randomSeed(): number {
 }
 
 export function useGame(options: UseGameOptions = {}): UseGameResult {
-  const { totalTurns = TOTAL_TURNS, seed } = options;
+  const {
+    totalTurns = DEFAULT_GAME_VERSION.totalTurns,
+    deckSizePerStack = DEFAULT_GAME_VERSION.deckSizePerStack,
+    seed,
+  } = options;
 
   const [state, setState] = useState<GameState>(() =>
-    createGame({ totalTurns, seed: seed ?? randomSeed() }),
+    createGame({ totalTurns, deckSizePerStack, seed: seed ?? randomSeed() }),
   );
 
-  const summary = useMemo(
-    () => summarize(state.events, state.totalTurns),
-    [state.events, state.totalTurns],
-  );
+  const summary = useMemo(() => summarize(state.events), [state.events]);
 
   const draw = useCallback((stack: StackId) => {
     setState((prev) => (engineCanDraw(prev, stack) ? engineDraw(prev, stack) : prev));
@@ -49,9 +51,9 @@ export function useGame(options: UseGameOptions = {}): UseGameResult {
 
   const reset = useCallback(
     (nextSeed?: number) => {
-      setState(createGame({ totalTurns, seed: nextSeed ?? randomSeed() }));
+      setState(createGame({ totalTurns, deckSizePerStack, seed: nextSeed ?? randomSeed() }));
     },
-    [totalTurns],
+    [totalTurns, deckSizePerStack],
   );
 
   const canDraw = useCallback((stack: StackId) => engineCanDraw(state, stack), [state]);

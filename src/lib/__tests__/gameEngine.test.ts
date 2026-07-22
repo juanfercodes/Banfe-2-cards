@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { canDraw, createGame, draw, remaining } from '@/lib/gameEngine';
 import type { GameState, StackId } from '@/lib/gameEngine';
-import { DECK_SIZE, SHORT_TOTAL_TURNS, TOTAL_TURNS } from '@/lib/protocol';
+import { DEFAULT_GAME_VERSION, getGameVersion } from '@/lib/protocol';
 
-function playFullGame(totalTurns = TOTAL_TURNS, seed = 42): GameState {
-  let state = createGame({ totalTurns, seed });
+const STANDARD = getGameVersion('standard');
+const EXTENDED = getGameVersion('extended');
+
+function playFullGame(
+  opts: { totalTurns?: number; deckSizePerStack?: number } = {},
+  seed = 42,
+): GameState {
+  let state = createGame({ ...opts, seed });
   const stacks: StackId[] = [1, 2, 3, 4, 5];
   let idx = 0;
   while (state.status === 'playing' || state.status === 'idle') {
@@ -22,11 +28,25 @@ function playFullGame(totalTurns = TOTAL_TURNS, seed = 42): GameState {
 }
 
 describe('createGame', () => {
-  it('builds 5 non-empty decks', () => {
+  it('defaults to the standard 90/50 version: 5 decks of 18 cards', () => {
     const state = createGame({ seed: 1 });
     for (const s of [1, 2, 3, 4, 5] as StackId[]) {
-      expect(remaining(state, s)).toBe(DECK_SIZE);
+      expect(remaining(state, s)).toBe(18);
     }
+    expect(state.totalTurns).toBe(50);
+    expect(state.deckSizePerStack).toBe(DEFAULT_GAME_VERSION.deckSizePerStack);
+  });
+
+  it('builds decks with a custom per-stack size (extended version)', () => {
+    const state = createGame({
+      deckSizePerStack: EXTENDED.deckSizePerStack,
+      totalTurns: EXTENDED.totalTurns,
+      seed: 1,
+    });
+    for (const s of [1, 2, 3, 4, 5] as StackId[]) {
+      expect(remaining(state, s)).toBe(40);
+    }
+    expect(state.totalTurns).toBe(200);
   });
 
   it('starts with idle status', () => {
@@ -37,16 +57,6 @@ describe('createGame', () => {
   it('stores the seed', () => {
     const state = createGame({ seed: 999 });
     expect(state.seed).toBe(999);
-  });
-
-  it('defaults to TOTAL_TURNS', () => {
-    const state = createGame({ seed: 1 });
-    expect(state.totalTurns).toBe(TOTAL_TURNS);
-  });
-
-  it('accepts custom totalTurns', () => {
-    const state = createGame({ totalTurns: SHORT_TOTAL_TURNS, seed: 1 });
-    expect(state.totalTurns).toBe(SHORT_TOTAL_TURNS);
   });
 
   it('starts with zero running total and no events', () => {
@@ -96,10 +106,21 @@ describe('draw', () => {
     }
   });
 
-  it('a full 200-turn game ends in finished with exactly TOTAL_TURNS events', () => {
+  it('a standard game ends finished with exactly 50 events, decks not exhausted', () => {
     const state = playFullGame();
     expect(state.status).toBe('finished');
-    expect(state.events).toHaveLength(TOTAL_TURNS);
+    expect(state.events).toHaveLength(STANDARD.totalTurns);
+    const cardsLeft = ([1, 2, 3, 4, 5] as StackId[]).reduce((n, s) => n + remaining(state, s), 0);
+    expect(cardsLeft).toBe(90 - 50);
+  });
+
+  it('an extended (legacy 200-turn) game ends with exactly 200 events', () => {
+    const state = playFullGame({
+      totalTurns: EXTENDED.totalTurns,
+      deckSizePerStack: EXTENDED.deckSizePerStack,
+    });
+    expect(state.status).toBe('finished');
+    expect(state.events).toHaveLength(200);
   });
 
   it('determinism — same seed + same draw sequence → identical events', () => {
@@ -120,13 +141,15 @@ describe('draw', () => {
     expect(s2.events).toEqual(s1.events);
   });
 
-  it('drawing from an empty stack is rejected', () => {
-    let state = createGame({ totalTurns: SHORT_TOTAL_TURNS, seed: 42 });
-    for (let i = 0; i < DECK_SIZE; i++) {
+  it('a single stack exhausts after 18 draws and further draws are rejected', () => {
+    let state = createGame({ seed: 42 });
+    for (let i = 0; i < 18; i++) {
       state = draw(state, 1);
     }
     expect(remaining(state, 1)).toBe(0);
+    expect(state.status).toBe('playing');
     expect(() => draw(state, 1)).toThrow();
+    expect(canDraw(state, 2)).toBe(true);
   });
 
   it('drawing after finished is rejected', () => {
@@ -137,7 +160,7 @@ describe('draw', () => {
 
   it('stack 1 never has penalties', () => {
     let state = createGame({ seed: 42 });
-    for (let i = 0; i < DECK_SIZE; i++) {
+    for (let i = 0; i < 18; i++) {
       state = draw(state, 1);
     }
     const penalties = state.events.filter((e) => e.hadPenalty);
@@ -158,12 +181,13 @@ describe('canDraw', () => {
     expect(canDraw(state, 1)).toBe(true);
   });
 
-  it('returns false for an exhausted stack', () => {
-    let state = createGame({ totalTurns: SHORT_TOTAL_TURNS, seed: 42 });
-    for (let i = 0; i < DECK_SIZE; i++) {
+  it('returns false for an exhausted stack while the game continues', () => {
+    let state = createGame({ seed: 42 });
+    for (let i = 0; i < 18; i++) {
       state = draw(state, 1);
     }
     expect(canDraw(state, 1)).toBe(false);
+    expect(state.status).toBe('playing');
   });
 
   it('returns false when game is finished', () => {
@@ -175,16 +199,20 @@ describe('canDraw', () => {
 describe('remaining', () => {
   it('decreases after a draw', () => {
     let state = createGame({ seed: 42 });
-    expect(remaining(state, 1)).toBe(DECK_SIZE);
+    expect(remaining(state, 1)).toBe(18);
     state = draw(state, 1);
-    expect(remaining(state, 1)).toBe(DECK_SIZE - 1);
+    expect(remaining(state, 1)).toBe(17);
   });
 });
 
-describe('easy mode (SHORT_TOTAL_TURNS)', () => {
-  it('finishes at 100 turns', () => {
-    const state = playFullGame(SHORT_TOTAL_TURNS);
+describe('legacy short version (100 turns)', () => {
+  it('finishes at 100 turns with 40-card decks', () => {
+    const short = getGameVersion('short');
+    const state = playFullGame({
+      totalTurns: short.totalTurns,
+      deckSizePerStack: short.deckSizePerStack,
+    });
     expect(state.status).toBe('finished');
-    expect(state.events).toHaveLength(SHORT_TOTAL_TURNS);
+    expect(state.events).toHaveLength(100);
   });
 });

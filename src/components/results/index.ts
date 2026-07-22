@@ -1,10 +1,10 @@
+export { CumulativeNetChart } from './CumulativeNetChart';
+export type { CumulativeNetChartProps } from './CumulativeNetChart';
 export { DrawsPerStackChart } from './DrawsPerStackChart';
 export type { DrawsPerStackChartProps } from './DrawsPerStackChart';
 export { InterpretationHint } from './InterpretationHint';
 export type { InterpretationHintProps } from './InterpretationHint';
 export { computeTendency, computeTrend, interpret } from './interpret';
 export type { Interpretation, Tendency, Trend } from './interpret';
-export { LearningCurveChart } from './LearningCurveChart';
-export type { LearningCurveChartProps } from './LearningCurveChart';
 export { PerStackBreakdown } from './PerStackBreakdown';
 export type { PerStackBreakdownProps } from './PerStackBreakdown';

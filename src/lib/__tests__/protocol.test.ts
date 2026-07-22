@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
   ADVANTAGEOUS_STACKS,
-  BLOCK_SIZE,
   CONTINGENCIES,
-  DECK_SIZE,
+  DEFAULT_GAME_VERSION,
   DISADVANTAGEOUS_STACKS,
-  SHORT_BLOCKS,
-  SHORT_TOTAL_TURNS,
-  TOTAL_TURNS,
+  GAME_VERSIONS,
+  STACK_COUNT,
   buildDeck,
+  getGameVersion,
 } from '@/lib/protocol';
 import { createRng } from '@/lib/rng';
 
@@ -36,25 +35,53 @@ describe('CONTINGENCIES', () => {
   });
 });
 
+describe('game versions', () => {
+  it('defines exactly the standard, extended and short presets', () => {
+    expect(GAME_VERSIONS.map((v) => v.id)).toEqual(['standard', 'extended', 'short']);
+  });
+
+  it('standard is the 90-card / 50-draw game', () => {
+    const standard = getGameVersion('standard');
+    expect(standard.deckSizePerStack).toBe(18);
+    expect(standard.totalTurns).toBe(50);
+    expect(standard.deckSizePerStack * STACK_COUNT).toBe(90);
+  });
+
+  it('the player draws fewer cards than the 90 in play', () => {
+    const standard = getGameVersion('standard');
+    expect(standard.totalTurns).toBeLessThan(standard.deckSizePerStack * STACK_COUNT);
+  });
+
+  it('standard is the default version', () => {
+    expect(DEFAULT_GAME_VERSION.id).toBe('standard');
+  });
+
+  it('extended is the legacy 200-turn game', () => {
+    const extended = getGameVersion('extended');
+    expect(extended.deckSizePerStack).toBe(40);
+    expect(extended.totalTurns).toBe(200);
+  });
+
+  it('short is the legacy 100-turn game', () => {
+    const short = getGameVersion('short');
+    expect(short.deckSizePerStack).toBe(40);
+    expect(short.totalTurns).toBe(100);
+  });
+
+  it('every version has an i18n label key', () => {
+    for (const version of GAME_VERSIONS) {
+      expect(version.labelKey).toMatch(/^game\.version\./);
+    }
+  });
+
+  it('getGameVersion throws for an unknown id', () => {
+    expect(() => getGameVersion('bogus' as never)).toThrow();
+  });
+});
+
 describe('constants', () => {
-  it('DECK_SIZE is 40', () => {
-    expect(DECK_SIZE).toBe(40);
-  });
-
-  it('TOTAL_TURNS is 200', () => {
-    expect(TOTAL_TURNS).toBe(200);
-  });
-
-  it('SHORT_TOTAL_TURNS is 100', () => {
-    expect(SHORT_TOTAL_TURNS).toBe(100);
-  });
-
-  it('SHORT_BLOCKS is 2', () => {
-    expect(SHORT_BLOCKS).toBe(2);
-  });
-
-  it('BLOCK_SIZE is 40', () => {
-    expect(BLOCK_SIZE).toBe(40);
+  it('STACK_COUNT is 5', () => {
+    expect(STACK_COUNT).toBe(5);
   });
 
   it('ADVANTAGEOUS_STACKS is [1, 2]', () => {
@@ -67,15 +94,15 @@ describe('constants', () => {
 });
 
 describe('buildDeck', () => {
-  it('produces DECK_SIZE cards', () => {
+  it('produces exactly the requested number of cards', () => {
     const rng = createRng(42);
-    const deck = buildDeck(1, DECK_SIZE, rng);
-    expect(deck).toHaveLength(DECK_SIZE);
+    expect(buildDeck(1, 18, rng)).toHaveLength(18);
+    expect(buildDeck(1, 40, rng)).toHaveLength(40);
   });
 
   it('every card carries the correct stack and reward', () => {
     const rng = createRng(42);
-    const deck = buildDeck(3, DECK_SIZE, rng);
+    const deck = buildDeck(3, 18, rng);
     for (const card of deck) {
       expect(card.stack).toBe(3);
       expect(card.reward).toBe(3);
@@ -84,7 +111,7 @@ describe('buildDeck', () => {
 
   it('stack 1 (prob 0) has no penalties', () => {
     const rng = createRng(42);
-    const deck = buildDeck(1, DECK_SIZE, rng);
+    const deck = buildDeck(1, 18, rng);
     const penalized = deck.filter((c) => c.hasPenalty);
     expect(penalized).toHaveLength(0);
   });
@@ -101,7 +128,7 @@ describe('buildDeck', () => {
 
   it('penalized cards carry the correct penalty value', () => {
     const rng = createRng(42);
-    const deck = buildDeck(4, DECK_SIZE, rng);
+    const deck = buildDeck(4, 18, rng);
     for (const card of deck) {
       if (card.hasPenalty) {
         expect(card.penalty).toBe(-6);
@@ -128,8 +155,8 @@ describe('buildDeck', () => {
   });
 
   it('is deterministic with the same rng seed', () => {
-    const a = buildDeck(2, DECK_SIZE, createRng(77));
-    const b = buildDeck(2, DECK_SIZE, createRng(77));
+    const a = buildDeck(2, 18, createRng(77));
+    const b = buildDeck(2, 18, createRng(77));
     expect(a).toEqual(b);
   });
 });

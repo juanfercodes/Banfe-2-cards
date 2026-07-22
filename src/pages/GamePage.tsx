@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
-import { GameBoard, GameProvider } from '@/components/game';
+import { GameBoard, GameProvider, VersionSelector } from '@/components/game';
 import type { TurnEvent } from '@/lib/gameEngine';
-import { SHORT_TOTAL_TURNS, TOTAL_TURNS } from '@/lib/protocol';
+import type { GameVersion } from '@/lib/protocol';
 import type { ScoreSummary } from '@/lib/scoring';
 
 export interface GamePageFinishPayload {
@@ -14,22 +15,24 @@ export interface GamePageFinishPayload {
 }
 
 export interface GamePageProps {
-  shortMode?: boolean | undefined;
   onFinish?: ((payload: GamePageFinishPayload) => void) | undefined;
 }
 
-export default function GamePage({ shortMode, onFinish }: GamePageProps) {
+export default function GamePage({ onFinish }: GamePageProps) {
   const { t } = useTranslation();
   const { patientId = '' } = useParams<{ patientId: string }>();
-  const [searchParams] = useSearchParams();
+  const [version, setVersion] = useState<GameVersion | null>(null);
 
-  const isShort = shortMode ?? searchParams.get('short') === '1';
-  const totalTurns = isShort ? SHORT_TOTAL_TURNS : TOTAL_TURNS;
+  const subtitle = t('game.patientLabel', { id: patientId });
+
+  if (!version) {
+    return <VersionSelector subtitle={subtitle} onStart={setVersion} />;
+  }
 
   return (
-    <GameProvider totalTurns={totalTurns}>
+    <GameProvider totalTurns={version.totalTurns} deckSizePerStack={version.deckSizePerStack}>
       <GameBoard
-        subtitle={t('game.patientLabel', { id: patientId })}
+        subtitle={subtitle}
         onFinish={(summary, events, seed) => onFinish?.({ patientId, summary, events, seed })}
       />
     </GameProvider>
