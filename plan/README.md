@@ -51,7 +51,7 @@ src/
     supabaseClient.ts
     protocol.ts          # stacks, decks, contingency table
     gameEngine.ts        # state machine, draw, penalize, events
-    scoring.ts           # net, per-stack, learning curve, adv/disadv index
+    scoring.ts           # net, per-stack, cumulative series, adv/disadv index
     rng.ts               # seedable deterministic RNG
     dataAccess.ts        # patients + sessions CRUD (typed)
     export.ts            # SheetJS .xlsx export
@@ -77,19 +77,33 @@ supabase/
     002_rls.sql
 ```
 
-## 3. Protocol reconstruction (the spec every worker must respect)
+## 3. Protocol (the spec every worker must respect — corrected by T6)
 
-> ⚠️ Reconstructed. If any number is wrong, STOP and use the BLOCKED protocol
-> (see PREAMBLE). Do not silently "fix" the protocol — flag it.
+> ⚠️ If any number is wrong, STOP and use the BLOCKED protocol (see PREAMBLE).
+> Do not silently "fix" the protocol — flag it.
 
 **Construct measured**: decision-making under risk, reward/punishment learning,
 impulsivity vs. strategic behavior (orbitofrontal / dorsolateral prefrontal).
 
-**Setup**:
-- 5 stacks labeled `1..5`, each a face-down deck of **40 cards** → **200 turns** total.
-- Each turn: the player picks a stack, the top card is drawn, a **reward** is added,
-  then a **penalization card** in front of it is revealed and subtracts points.
+**Setup (standard version — the clinical default)**:
+- 5 stacks labeled `1..5`, each a face-down deck of **18 cards** → **90 cards total**.
+- A session is **50 turns**: the player makes 50 draws, then the game ends. Since
+  50 < 90 the decks are never all exhausted; a single stack CAN run out at 18
+  draws — it becomes unavailable and the player must pick another stack.
+- Each turn: the player picks a stack, the top card is drawn face-up onto that
+  stack's **discard pile**, a **reward** is added, then a **penalization** (if the
+  card carries one) subtracts points. The discard piles accumulate for the whole
+  session so the decision history per deck stays visible.
 - Higher-score stacks carry larger / more frequent penalizations.
+
+**Game versions** (`lib/protocol.ts`, chosen by the clinician in a selector when
+starting a session; not yet persisted in the DB):
+
+| id | deckSizePerStack | totalTurns | note |
+|---|---|---|---|
+| `standard` | 18 | 50 | **default** — the 90-card / 50-draw clinical game |
+| `extended` | 40 | 200 | legacy full-length reconstruction |
+| `short` | 40 | 100 | legacy short reconstruction |
 
 **Contingency table** (reward per draw, penalization amount, penalization
 probability, net expected value per draw):
@@ -109,19 +123,17 @@ Stack 3 is neutral.
 - `net_total` = sum of all turn net results.
 - `per_stack` = `{ [stack]: net }` for stacks 1..5.
 - `penalizations` = count of penalization events.
-- `learning_curve` = net per block of 40 turns → array of `ceil(totalTurns/40)`
-  numbers (5 blocks for a full 200-turn session, 3 blocks for a 100-turn short
-  session — per the formula; `SHORT_BLOCKS` is exported as 3 for clarity).
 - `adv_disadv_index` = `(sum of draws in stacks 1,2) − (sum of draws in stacks 4,5)`.
   Positive ⇒ advantageous/strategic; negative ⇒ disadvantageous/impulsive.
+- There are **no learning-curve blocks**: the game runs straight through its 50
+  turns. The Results screen shows a **cumulative net-score line** (running total
+  after each turn, `cumulativeNet(events)`), computed from `raw_events`.
 
 **Session record persisted** (`sessions` table):
 `patient_id, started_at, ended_at, total_net, per_stack (jsonb),
-penalizations, learning_curve (jsonb), adv_disadv_index, raw_events (jsonb)`.
-
-**"Easy at the beginning" patient profile**: the first session for a new patient
-defaults to a **shortened 100-turn** game (2 blocks) with an onboarding hint,
-then full 200-turn sessions thereafter. Implemented in `useGame` + `GamePage`.
+penalizations, learning_curve (jsonb — deprecated, always stored as '[]'),
+adv_disadv_index, raw_events (jsonb)`. The `learning_curve` column is retained
+only to avoid a migration; nothing reads it.
 
 ## 4. Data model (Supabase Postgres)
 
