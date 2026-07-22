@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Pre-commit: block secrets (gitleaks) + verify no .env staged.
+# Installed by: git config core.hooksPath .githooks  (set per checkout)
+set -e
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "warn: gitleaks not installed (brew install gitleaks); skipping secret scan" >&2
+  exit 0
+fi
+
+# Block accidental .env commit
+if git diff --cached --name-only --diff-filter=ACM | grep -E '(^|/)\.env($|[^.])' >/dev/null; then
+  echo "error: a .env file is staged. .env is gitignored — unstage it." >&2
+  git diff --cached --name-only --diff-filter=ACM | grep -E '(^|/)\.env($|[^.])' >&2
+  exit 1
+fi
+
+# Scan staged changes only (fast)
+if ! gitleaks protect --staged --redact --config=.gitleaks.toml --verbose; then
+  echo "error: gitleaks detected secrets in staged changes. Remove them and re-stage." >&2
+  exit 1
+fi
+
+exit 0

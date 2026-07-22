@@ -1,0 +1,23 @@
+title = "banfe-2-cards secret scan"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "top-level allowlist"
+paths = [
+  '''(^|/)\.git/.*''',
+  '''(^|/)node_modules/.*''',
+  '''(^|/)dist/.*''',
+  '''(^|/)playwright-report/.*''',
+  '''(^|/)test-results/.*''',
+  '''(^|/)coverage/.*''',
+  '''package-lock\.json''',
+  '''(^|/)\.env\.example$''',
+]
+regexes = [
+  # local supabase demo anon key (public-safe, RLS-protected, printed by supabase status)
+  '''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24i''',
+  # VITE_ env var NAMES (not values) in docs/example files
+  '''VITE_SUPABASE_(URL|ANON_KEY)=\s*$''',
+]
