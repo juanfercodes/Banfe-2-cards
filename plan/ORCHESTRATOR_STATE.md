@@ -263,3 +263,21 @@ constraints so the cheaper/other-pool model only does design, never invents numb
 
 develop tip after T7: `a1b5f1c`. Remaining plan work: **T5 (docs+deploy)** still queued
 (deploy blocked on user prod infra). The 90/50 game is live for QA at localhost:5173.
+
+## Session 2 — T8 protocol correction (deterministic penalties + timer + hidden score)
+User QA feedback → real protocol nailed down (merged `55ef900`, via OpenCode
+`kimi-k2.7-code` high to spare Claude; orchestrator clinically VERIFIED the schedule
+deck-by-deck against the user's table before merge):
+- **Penalties are a FIXED per-position schedule** (not probabilistic/RNG). Rewards +1..+5
+  per deck. Exact table (deck: reward, penalty, penalty positions in 1..18):
+  1:+1,−2,{5,14} · 2:+2,−3,{4,8,12,16} · 3:+3,−5,{3,6,9,12,15,18} ·
+  4:+4,−8,{2,4,6,8,10,12,14,16,18} · 5:+5,−12,{2,4,5,7,9,10,12,14,15,17}.
+  Decks are now fully deterministic; RNG/seed removed from deck building.
+- **Single game** = 90 cards (18×5), draw cap 50, **5-min countdown**; ends at 0:00 OR 50
+  draws, whichever first. Legacy 100/200 versions + version selector REMOVED.
+- **Running score hidden from the patient** in-game (per-card reward + instant penalty
+  only; ScoreBar shows countdown + draw count, no total). Clinician Results UNCHANGED.
+- Gates: typecheck/lint/build OK, 201 unit + 22 integration + 6 E2E green. README §3 updated.
+develop tip: `55ef900`. Dev server for QA runs in herdr pane `w18:p6` (tab "dev-server")
+— durable there vs. background-bash reaping. Remaining: T5 docs+deploy (deploy blocked on
+user prod infra).
