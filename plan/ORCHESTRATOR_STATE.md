@@ -137,12 +137,16 @@ to the env default otherwise) — `claude --resume <id> --model <id> --effort <l
   (nothing to watch until Batch 3 launches). Relaunch it per-pane when Batch 3 starts.
 - Note: T2 left the local Supabase/Docker stack UP (`npm run supabase:stop` to free it).
 
-## NEXT: Batch 4 (T4 integration+E2E) — awaiting user go (session 2)
-Batch 1/2/3 all merged. T4 wires the slices end-to-end (game→saveSession→results,
-auth flows, dashboard history) + Playwright E2E. Reasoning-critical integration →
-proposed `claude-opus-4-8` high. Single task, own worktree. After T4: Batch 5 (T5
-docs+deploy, proposed `claude-fable-5` low). **Use the harness-tracked herdr-polling
-waiter (post-mortem above), not the detached daemon, for T4 monitoring.**
+## NEXT: Batch 5 (T5 docs+deploy) — awaiting user go (session 2)
+Batches 1–4 all merged; develop tip `bc8622b`, full app integrated with green
+unit/integration/E2E + CI workflow. T5 = docs + DEPLOY (proposed `claude-fable-5` low
+for docs). ⚠️ **Deploy has hard USER-SIDE prerequisites (see "Infra pending" above):**
+Supabase PROD project (URL+anon key, apply T2 migrations there), `supabase link`,
+Vercel project + env vars. The docs half can proceed now; the deploy half is BLOCKED
+on the user's accounts and is outward-facing → confirm scope with the user before
+launching (docs-only now, or wait until prod infra exists). Known flagged item for T5:
+reconcile SHORT_BLOCKS (const=2) vs scoring's ceil(100/40)=3 (a protocol decision).
+Monitoring: harness-tracked herdr-polling waiter (post-mortem above), never the daemon.
 
 ## Batch progress
 
@@ -210,7 +214,7 @@ bug was polling daemon flag files (a dead-daemon dependency) instead of polling 
 ### Batch 4 — Integration (after Batch 3)
 | Task | Status | Worktree | Branch | Pane | PR |
 |---|---|---|---|---|---|
-| T4 | 🟡 running — CLAUDE Opus 4.8 high +ultracode; launched session 2 ~00:04 | `~/.herdr/worktrees/Banfe-2-cards/feat-t4-integration` | `feat/t4-integration` | `w1M:p1` (ws `w1M`) | robust waiter (harness-tracked, polls herdr) |
+| T4 | ✅ merged to develop (session 2, 00:53 — `bc8622b`, FF, 3 commits). CLAUDE Opus 4.8 high +ultracode. Gates: typecheck+lint+format+build OK, 196 unit + 22 integration + **6 Playwright E2E** green; adversarial multi-agent diff review (2 findings fixed). Added CI workflow + a11y specs. Robust harness-tracked waiter worked cleanly. | — | `feat/t4-integration` | `w1M:p1` (done) | — |
 
 ### Batch 5 — Ship (after Batch 4)
 | Task | Status | Worktree | Branch | Pane | PR |
