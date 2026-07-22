@@ -103,6 +103,7 @@
     "patientLabel": "Patient: {{id}}",
     "version": {
       "title": "Session version",
+      "hint": "Choose a version and start. Standard is the recommended assessment.",
       "standard": "Standard",
       "extended": "Extended",
       "short": "Short",
